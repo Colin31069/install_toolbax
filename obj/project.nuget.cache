@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "Kt+Q/J3WsHM=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Colin_Lin\\Documents\\Antigravity\\install_toolbax\\InstallToolbox.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Colin_Lin\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.2\\communitytoolkit.mvvm.8.4.2.nupkg.sha512",
+    "C:\\Users\\Colin_Lin\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.23\\microsoft.aspnetcore.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Colin_Lin\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.23\\microsoft.netcore.app.host.win-x64.8.0.23.nupkg.sha512",
+    "C:\\Users\\Colin_Lin\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.23\\microsoft.netcore.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Colin_Lin\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.23\\microsoft.windowsdesktop.app.ref.8.0.23.nupkg.sha512"
+  ],
+  "logs": []
+}

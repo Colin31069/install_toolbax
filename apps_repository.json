@@ -1,0 +1,68 @@
+{
+  "Version": "1.0",
+  "Categories": [
+    "預設環境",
+    "開發工具",
+    "系統工具"
+  ],
+  "Apps": [
+    {
+      "Id": "Microsoft.DotNet.DesktopRuntime.8",
+      "Name": ".NET 8 Desktop Runtime",
+      "Category": "預設環境",
+      "Description": "許多現代 Windows 應用程式的執行平台。",
+      "SourceType": "Winget",
+      "Source": "Microsoft.DotNet.DesktopRuntime.8",
+      "InstallerType": "Winget",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "Microsoft.DotNet.DesktopRuntime.8"
+      }
+    },
+    {
+      "Id": "NotepadPlusPlus",
+      "Name": "Notepad++",
+      "Category": "開發工具",
+      "Description": "輕量級的程式碼編輯器。",
+      "SourceType": "Winget",
+      "Source": "Notepad++.Notepad++",
+      "InstallerType": "Winget",
+      "RequiresAdmin": true,
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "Notepad++.Notepad++"
+      }
+    },
+    {
+      "Id": "Git.Git",
+      "Name": "Git for Windows",
+      "Category": "開發工具",
+      "Description": "版本控制系統。",
+      "SourceType": "Winget",
+      "Source": "Git.Git",
+      "InstallerType": "Winget",
+      "RequiresAdmin": true,
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "Git.Git"
+      }
+    },
+    {
+      "Id": "7zip.7zip",
+      "Name": "7-Zip",
+      "Category": "系統工具",
+      "Description": "高壓縮比的免費開源解壓縮工具。",
+      "SourceType": "Winget",
+      "Source": "7zip.7zip",
+      "InstallerType": "Winget",
+      "RequiresAdmin": true,
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "7zip.7zip"
+      }
+    }
+  ]
+}
