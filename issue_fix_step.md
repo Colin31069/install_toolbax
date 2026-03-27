@@ -4,282 +4,273 @@ This file contains only the current round of instructions for the AI agent.
 
 ## Goal
 
-Add in-app management for apps that already exist in the repository.
+Redesign the main browsing model so the left sidebar is driven by child categories instead of parent groups, keep `All Apps` and `Portable Toolkit` as special entries, move former parent-group use cases into the top quick preset area, and make the app default to dark theme.
 
-Users can already create new app entries, but they still have to open `apps_repository.json` manually if they want to:
-
-- change an existing app
-- replace or add an icon for an existing app
-- remove an app that is no longer needed
-
-This round must remove that dependency on manual JSON editing.
+This round is a navigation and information architecture redesign. The current UI still uses parent groups on the left and child sections as tabs on the right. The new UX should make the left side more directly useful and reduce overlap between parent groups and top presets.
 
 ## Fixed Product Decisions
 
-- Do not require users to edit `apps_repository.json` manually for normal maintenance.
-- Keep app management inside Settings.
-- Add UI support for editing existing apps.
-- Add UI support for deleting existing apps.
-- Existing app icon changes must use the same managed icon approach as the Add App flow.
-- Deleting an app must also clean up references to that app in groups, sections, and presets.
-- Prefer a safe, explicit workflow over a fast but risky one.
+- Replace left-side parent-group navigation with child-category navigation.
+- Keep `All Apps` as a special always-available entry.
+- Visually separate `All Apps` from the normal categories below it with a divider or an equally clear visual separator.
+- Keep `Portable Toolkit` as a special preserved entry in the left sidebar.
+- Do not keep parent groups such as `New PC Essentials` as left-side navigation entries.
+- Move the use case of parent groups like `New PC Essentials`, `Coding`, and similar bundles into the top quick preset area instead.
+- Plan for many presets in the top area. The preset bar must support hiding overflow and user-controlled ordering.
+- Users must be able to drag and reorder the top presets.
+- Default the application theme to dark mode.
 
 ## Scope
 
 ### In scope
 
-- browse and select an existing app
-- load the selected app into an editable form
-- modify existing app fields
-- change or reset the icon of an existing app
-- save changes back to `apps_repository.json`
-- delete an existing app with confirmation
-- remove all references to the deleted app from the repository structure
-- refresh the UI after edit or delete
+- redesign the left sidebar navigation model
+- keep `All Apps` as a separated special entry
+- keep `Portable Toolkit` as a separated special entry
+- flatten normal browsing into child categories such as:
+  - browsers
+  - system tools
+  - communication / daily
+  - other section-level categories already present in the repository
+- move former parent-group use cases into the top quick preset area
+- add preset overflow handling
+- add preset drag-and-drop reordering
+- persist the preset order locally
+- make dark theme the default theme
 
 ### Out of scope
 
-- bulk edit
-- multi-select delete
-- undo history
-- automatic icon scraping
-- a separate admin window outside Settings
+- changing the installer engine
+- rewriting the app repository schema from scratch unless required
+- removing `All Apps`
+- removing `Portable Toolkit`
+- building a full preset editor in this round
 
-## Required UX
+## Required Navigation Model
 
-### 1. Add an Existing Apps management surface in Settings
+### 1. Left sidebar becomes section-driven
 
-Settings must include a dedicated management area for existing apps.
+The left sidebar must stop showing parent groups such as:
 
-A simple recommended layout is:
+- `New PC Essentials`
+- `Coding`
+- `Gaming`
 
-- `Add App`
-- `Manage Existing Apps`
-- `General`
+Instead, the left sidebar must show child categories directly.
 
-The new management area must include:
+Examples of the intended left-side category style:
 
-- a list, combo box, or searchable selector for existing apps
-- a form that loads the selected app's current values
-- a save action for updates
-- a delete action for removal
+- `Browsers`
+- `System Tools`
+- `Communication / Daily`
+- other section-level categories derived from the current repository
 
-The user must not need to open raw JSON for normal edit or delete tasks.
+### 2. Keep `All Apps` as a special top entry
 
-### 2. Reuse the same field model as much as possible
-
-The edit form should reuse the same field structure already used for Add App wherever practical.
-
-At minimum, the existing app editor must support:
-
-- `Id`
-- `Name`
-- `Description`
-- `IconPath` through managed icon controls
-- `SourceType`
-- `Source`
-- `InstallerType`
-- `RequiresAdmin`
-- `DeploymentType`
-- `InstallArgs`
-
-If the current codebase already has additional supported fields in the model, the edit flow should preserve them and avoid silently dropping them.
-
-### 3. Existing app icon management
-
-The edit flow must support icon updates for apps that are already in the repository.
+`All Apps` must remain available.
 
 Required behavior:
 
-- show the current icon preview
-- allow browsing for a replacement icon
-- allow resetting the icon to the default fallback icon
-- use the same accepted file types as the Add App flow:
-  - `.png`
-  - `.jpg`
-  - `.jpeg`
-  - `.ico`
-- use the same managed icon storage rules as Add App:
-  - copy user-selected icons into `UserAssets/Icons/`
-  - persist only the managed relative path
-  - do not persist the original external absolute path
+- place `All Apps` at the top of the left sidebar
+- keep it visually separated from the normal category list below it
+- use a horizontal divider, spacing block, or another equally clear separator
 
-If the edited app already uses a managed icon and the user replaces it, the managed icon file should be overwritten or replaced safely.
+The user must immediately understand that `All Apps` is a global view and not just another category.
 
-## Required Edit Behavior
+### 3. Keep `Portable Toolkit` as a special entry
 
-### 4. Loading an existing app
+`Portable Toolkit` must remain available in the left sidebar.
 
-When the user selects an existing app:
+It must not be removed or converted into a normal quick preset.
 
-- load the app's current values into the edit form
-- populate icon preview from the current persisted icon path
-- load the app's current group and section memberships
-- keep the original app id available internally for reference updates
+`Portable Toolkit` may remain visually separated from the standard flattened categories if that produces a clearer UX.
 
-The UI must make it clear that the user is editing an existing record, not creating a new one.
+### 4. Remove redundant right-side child tabs for normal categories
 
-### 5. Saving edits
-
-The save flow for existing apps must update the repository entry instead of appending a new one.
+Once the left sidebar already shows child categories, the extra right-side tab layer for normal categories becomes redundant.
 
 Required behavior:
 
-1. load the current repository
-2. identify the selected existing app by its original id
-3. validate edited values
-4. update the matching app record
-5. update group/section references if needed
-6. update preset references if needed
-7. save the repository safely
-8. refresh the UI so changes appear immediately
+- when the selected left-side item is a normal child category, show its app list directly
+- do not require the user to click an additional child tab for the normal browsing flow
 
-### 6. Editing the app id
+### 5. Preserve a special internal structure for `Portable Toolkit` if needed
 
-Editing `Id` is allowed in this round.
+`Portable Toolkit` may keep its own internal sub-sections if that still improves usability.
 
-If the app id changes:
+This is the one special case where an extra inner tab or segmented view is acceptable.
 
-- the new id must still be unique across all apps
-- every matching id reference in every group section must be updated
-- every matching id reference in every preset must be updated
-- if the app has a managed custom icon named from the old id, the managed icon file should be renamed to match the new id when practical
-- if rename is not practical because of the current implementation path, the save flow must still leave the app with a valid icon path and must not break the icon reference
+## Data Strategy
 
-This is a required consistency rule. No stale old ids may remain in the repository after a successful save.
+### 6. Derive sidebar categories from existing section data
 
-### 7. Group and section membership editing
+Prefer deriving the new left-side categories from existing section-level repository data instead of inventing a brand-new schema immediately.
 
-The edit workflow must allow updating where an existing app appears.
+Recommended approach:
+
+- treat `All Apps` as a special synthetic entry
+- treat normal non-portable sections as sidebar categories
+- treat `Portable Toolkit` as a special synthetic entry backed by its current group
+
+The implementation should minimize repository migration risk for this round.
+
+### 7. Treat former parent groups as quick presets
+
+Former parent groups such as `New PC Essentials` should no longer be left-side navigation entries.
+
+Instead, they should be represented in the top quick preset area because their purpose overlaps heavily with presets.
+
+The agent may implement this in one of these ways, whichever is simpler and safer in the current codebase:
+
+- migrate those group bundles into real presets
+- or derive quick presets from those groups at runtime
+
+The important product rule is:
+
+- they appear in the top quick preset area
+- they do not appear as primary left-side categories anymore
+
+## Quick Preset Area Requirements
+
+### 8. Support many presets gracefully
+
+The top quick preset area must be designed for growth.
+
+Do not assume the preset count will remain small.
 
 Required behavior:
 
-- show current group/section memberships
-- allow adding memberships
-- allow removing memberships
-- leave `All Apps` implicit as it is today
+- the first row of presets must remain readable and uncluttered
+- extra presets must be hideable when there are too many
+- the UI must provide an explicit expand or show-more mechanism
 
-Saving must produce the final membership state exactly as selected in the form.
+Recommended behavior:
 
-### 8. Preserve non-edited data safely
+- show a single-row preset bar by default
+- if presets exceed available space, show a `More` or `Expand` control
+- when expanded, show the full preset list in a wrapped or expanded layout
 
-If a field is not exposed in the editor UI yet, the save flow must not accidentally erase or reinitialize it.
+### 9. Preset reordering
 
-The agent must be careful not to overwrite supported repository data with defaults unless the user explicitly changed that field.
+Users must be able to drag and reorder quick presets.
 
-## Required Delete Behavior
+Required behavior:
 
-### 9. Delete an existing app safely
+- support drag-and-drop reordering in the quick preset area
+- persist the resulting order locally in user settings
+- preserve the custom order across restarts
 
-The management UI must provide a delete action for the currently selected existing app.
+### 10. Preset persistence
 
-Delete must require explicit confirmation.
+Add local persistence for preset UI state as needed.
 
-The confirmation should clearly warn that the action will:
+At minimum, local settings should support:
 
-- remove the app from the main app catalog
-- remove the app from all group sections
-- remove the app from all presets
+- custom preset order
+- optionally the expanded or collapsed state of the preset area if the implementation uses one
 
-### 10. Delete cleanup rules
+This state belongs in local user settings, not in the shared app catalog repository.
 
-When an app is deleted:
+## Theme Requirement
 
-- remove the app record from `Apps`
-- remove its id from every `Group -> Section -> AppIds`
-- remove its id from every `Preset -> AppIds`
+### 11. Default to dark theme
 
-If the app uses a managed custom icon under `UserAssets/Icons/`:
+The application theme must default to dark mode.
 
-- delete that managed icon file if it belongs only to the deleted app
-- do not delete built-in assets under `/Assets/Icons/`
+Required behavior:
 
-The delete flow must not leave dangling references in the repository.
+- on first run or when no saved theme preference exists, use dark theme
+- do not force-reset users who already have an explicit saved theme preference
+- keep the existing theme toggle functional
 
-## Validation Rules
+The UX goal is:
 
-- an edited app cannot be saved with an empty `Id`
-- an edited app cannot be saved with an empty `Name`
-- an edited app cannot be saved with an empty `Source`
-- the edited `Id` must be unique across all apps except the currently edited record
-- if a custom icon is selected, only allowed file extensions may be accepted
-- if icon copy or replacement fails, do not persist a broken icon path
-- deleting an app must require user confirmation
+- dark mode is the product default
+- explicit user choice still wins after it has been saved
 
-## Data and Save Safety
+## UI and Behavior Rules
 
-- keep using `apps_repository.json` as the single source of truth for app catalog data
-- do not introduce a second catalog file
-- save in UTF-8
-- keep readable JSON formatting
-- create or keep a backup before replacing the main repository file if the current implementation already supports that pattern
-- do not partially save only part of the repository structure
+### 12. Category selection behavior
 
-The repository update must be treated as one logical operation.
+When the user clicks a normal child category in the left sidebar:
 
-## UI Refresh Requirements
+- show the apps for that category directly
+- show a single direct app list view
+- do not require another category-selection step on the right
 
-After a successful edit:
+### 13. `All Apps` behavior
 
-- the updated app must appear immediately in the main UI
-- the updated icon must appear immediately if it changed
-- updated group/section placement must appear immediately
-- updated preset targeting must be reflected immediately
+When the user clicks `All Apps`:
 
-After a successful delete:
+- show the complete app list
+- keep this visually distinct from the normal categories in the left sidebar
 
-- the removed app must disappear immediately from the main UI
-- it must disappear from all affected sections
-- it must no longer be targeted by presets
+### 14. `Portable Toolkit` behavior
 
-The user must not need to restart the application.
+When the user clicks `Portable Toolkit`:
+
+- show the portable-specific view
+- retain its internal structure if needed for usability
+
+### 15. Preset application behavior
+
+Quick presets must continue selecting app bundles in the main list as they do today.
+
+Moving former parent groups into the preset area must not remove the ability to apply those bundles quickly.
+
+## Validation and Migration Rules
+
+- do not break existing `apps_repository.json` loading unless migration is absolutely required
+- do not remove `All Apps`
+- do not remove `Portable Toolkit`
+- do not leave both old parent-group navigation and new child-category navigation active at the same time
+- do not require the user to understand repository internals to use the new navigation model
 
 ## Recommended Implementation Order
 
-1. Add the existing app selector and edit mode UI in Settings.
-2. Load selected app data into editable state.
-3. Reuse icon preview and managed icon replacement behavior for existing apps.
-4. Implement safe update logic for existing apps.
-5. Implement id-change propagation across groups, sections, and presets.
-6. Implement delete with confirmation and repository cleanup.
-7. Reload the repository after save or delete and refresh the main UI.
+1. Refactor the view-model navigation model so the left sidebar can be driven by child categories instead of parent groups.
+2. Keep `All Apps` as a synthetic top entry and add a clear separator below it.
+3. Preserve `Portable Toolkit` as a special sidebar entry.
+4. Remove redundant right-side child tabs for normal browsing categories.
+5. Move former parent-group use cases into the top quick preset area.
+6. Add a scalable preset presentation model with overflow hiding and an expand control.
+7. Add drag-and-drop preset reordering and persist the custom order locally.
+8. Make dark theme the default when no saved preference exists.
+9. Verify the final UX against the target layout and interaction model.
 
 ## Acceptance Tests
 
-### Edit existing app
+### Sidebar structure
 
-1. Select an existing app and change its name. Save and verify the new name appears immediately in the main UI.
-2. Select an existing app and change its icon. Save and verify the new icon appears immediately and still appears after restarting the app.
-3. Select an existing app and reset its icon to the default icon. Save and verify the fallback icon is shown.
-4. Select an existing app and change its source-related fields. Save and verify the repository entry updates instead of creating a duplicate.
+1. The left sidebar shows `All Apps` at the top.
+2. `All Apps` is visually separated from the normal categories below it.
+3. Normal left-side entries are child categories such as `Browsers`, `System Tools`, and `Communication / Daily`.
+4. Former parent groups like `New PC Essentials` no longer appear as left-side primary navigation entries.
+5. `Portable Toolkit` still appears in the left sidebar.
 
-### Edit existing app id
+### Main content behavior
 
-1. Select an existing app and change its `Id` to a new unique value.
-2. Save and verify the app record uses the new id.
-3. Verify every matching group/section reference now points to the new id.
-4. Verify every matching preset reference now points to the new id.
-5. Verify no old id references remain in the repository after save.
+1. Clicking a normal left-side child category shows its app list directly without an extra normal-category tab step.
+2. Clicking `All Apps` shows the complete app list.
+3. Clicking `Portable Toolkit` still gives access to its portable-specific content and internal sections if retained.
 
-### Delete existing app
+### Quick preset area
 
-1. Select an existing app and trigger delete.
-2. Confirm the delete action.
-3. Verify the app is removed from `Apps`.
-4. Verify the app id is removed from all sections.
-5. Verify the app id is removed from all presets.
-6. Verify the app no longer appears in the UI without restarting.
+1. Former parent-group bundles such as `New PC Essentials` appear in the top quick preset area.
+2. The quick preset area remains usable when the preset count grows.
+3. Extra presets can be hidden and then revealed through an explicit UI control.
+4. Users can drag and reorder presets.
+5. Preset order remains the same after restarting the app.
 
-### Validation and safety
+### Theme
 
-1. Try to save an edit with an empty `Name` and verify validation blocks the save.
-2. Try to save an edit with a duplicate `Id` and verify validation blocks the save.
-3. Try to delete an app and cancel the confirmation dialog; verify nothing changes.
-4. Verify built-in icon assets are never deleted during app deletion.
+1. On first run with no saved preference, the app starts in dark mode.
+2. If the user later chooses light mode, that preference is preserved.
+3. The theme toggle still works after the default-dark change.
 
 ## Non-goals for this round
 
-- Do not build a full power-user admin console.
-- Do not add batch operations.
-- Do not introduce direct JSON editing into the UI.
-- Do not require the user to understand repository internals for ordinary maintenance.
+- Do not redesign the install workflow itself.
+- Do not remove support for the current preset concept.
+- Do not build a full preset authoring UI.
+- Do not let the preset bar grow without an overflow strategy.

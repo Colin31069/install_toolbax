@@ -68,12 +68,32 @@
         <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource GlassCardStyle}" Margin="10,0,5,10">
             <ListBox ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" 
                      Background="Transparent" BorderThickness="0" Margin="5">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSeparator}" Value="True">
+                                <Setter Property="IsEnabled" Value="False"/>
+                                <Setter Property="Margin" Value="0,5"/>
+                                <Setter Property="Padding" Value="0"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="5,10">
-                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
-                        </StackPanel>
+                        <Grid>
+                            <StackPanel Margin="5,10" x:Name="NormalContent">
+                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Border x:Name="SeparatorContent" Visibility="Collapsed" Height="1" Background="{DynamicResource ControlStrokeColorDefaultBrush}" Margin="5,2"/>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSeparator}" Value="True">
+                                <Setter TargetName="NormalContent" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="SeparatorContent" Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -94,24 +114,45 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     
-                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <TextBlock Text="快速預設清單：" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0"/>
-                        <ItemsControl ItemsSource="{Binding Presets}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <ui:Button Content="{Binding Name}" 
-                                            Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                            CommandParameter="{Binding}" 
-                                            Margin="5,0"
-                                            Appearance="Primary" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                    <StackPanel Grid.Column="0" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="快速預設清單：" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0"/>
+                            <ToggleButton x:Name="ExpandToggleBtn" Content="顯示全部/排序" Margin="10,0" Padding="8,4" />
+                            <TextBlock Text="(展開後可拖曳按鈕自訂排序)" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" />
+                        </StackPanel>
+                        
+                        <ScrollViewer MaxHeight="45" VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer.Style>
+                                <Style TargetType="ScrollViewer">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=ExpandToggleBtn}" Value="True">
+                                            <Setter Property="MaxHeight" Value="200"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ScrollViewer.Style>
+                            <ItemsControl ItemsSource="{Binding Presets}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="5,5" Background="Transparent"
+                                                PreviewMouseMove="Preset_PreviewMouseMove"
+                                                PreviewMouseLeftButtonDown="Preset_PreviewMouseLeftButtonDown"
+                                                Drop="Preset_Drop"
+                                                AllowDrop="True">
+                                            <ui:Button Content="{Binding Name}" 
+                                                    Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                    CommandParameter="{Binding}" 
+                                                    Appearance="Primary" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </StackPanel>
 
                     <!-- 右側操作區：設定與主題切換 -->
@@ -128,6 +169,15 @@
 
             <!-- 下方 Sections 分頁區 -->
             <TabControl Grid.Row="1" ItemsSource="{Binding SelectedGroup.Sections}" SelectedItem="{Binding SelectedSection, Mode=TwoWay}" Margin="10" Background="Transparent" BorderThickness="0">
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.SelectedGroup.Sections.Count, RelativeSource={RelativeSource AncestorType=Window}}" Value="1">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TabControl.ItemContainerStyle>
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Name}" FontSize="14" Padding="10,5"/>

@@ -161,38 +161,100 @@ public partial class MainViewModel : ObservableObject
                 allAppsGroup.Sections.Add(allAppsSection);
                 Groups.Add(allAppsGroup);
 
+                Groups.Add(new AppGroupViewModel { IsSeparator = true });
+
+                var generatedPresets = new List<AppPreset>();
+
                 foreach (var g in repo.Groups)
                 {
-                    var groupVm = new AppGroupViewModel { Id = g.Id, Name = g.Name, Description = g.Description };
-                    foreach (var s in g.Sections)
+                    if (g.Id == "portable-toolkit")
                     {
-                        var sectionVm = new AppSectionViewModel { Id = s.Id, Name = s.Name, Description = s.Description };
-                        foreach (var id in s.AppIds)
+                        var groupVm = new AppGroupViewModel { Id = g.Id, Name = g.Name, Description = g.Description };
+                        foreach (var s in g.Sections)
                         {
-                            if (dict.TryGetValue(id, out var appItem))
+                            var sectionVm = new AppSectionViewModel { Id = s.Id, Name = s.Name, Description = s.Description };
+                            foreach (var id in s.AppIds)
                             {
-                                sectionVm.Apps.Add(appItem);
+                                if (dict.TryGetValue(id, out var appItem))
+                                {
+                                    sectionVm.Apps.Add(appItem);
+                                }
                             }
+                            groupVm.Sections.Add(sectionVm);
                         }
-                        groupVm.Sections.Add(sectionVm);
+                        Groups.Add(groupVm);
                     }
-                    Groups.Add(groupVm);
+                    else
+                    {
+                        // Convert sections to Groups
+                        foreach (var s in g.Sections)
+                        {
+                            var newGroupVm = new AppGroupViewModel { Id = s.Id, Name = s.Name, Description = s.Description };
+                            var newSectionVm = new AppSectionViewModel { Id = s.Id + "-sec", Name = s.Name, Description = s.Description };
+                            foreach (var id in s.AppIds)
+                            {
+                                if (dict.TryGetValue(id, out var appItem))
+                                {
+                                    newSectionVm.Apps.Add(appItem);
+                                }
+                            }
+                            newGroupVm.Sections.Add(newSectionVm);
+                            Groups.Add(newGroupVm);
+                        }
+
+                        // Convert former parent groups to presets
+                        var groupPreset = new AppPreset 
+                        { 
+                            Id = "group-preset-" + g.Id, 
+                            Name = g.Name, 
+                            Description = g.Description 
+                        };
+                        var presetAppIds = new HashSet<string>();
+                        foreach (var s in g.Sections)
+                        {
+                            foreach (var id in s.AppIds) presetAppIds.Add(id);
+                        }
+                        groupPreset.AppIds.AddRange(presetAppIds);
+                        generatedPresets.Add(groupPreset);
+                    }
                 }
 
-                foreach (var p in repo.Presets)
+                var allPresets = new List<AppPreset>();
+                allPresets.AddRange(generatedPresets);
+                allPresets.AddRange(repo.Presets);
+
+                if (_currentSettings.PresetOrder != null && _currentSettings.PresetOrder.Count > 0)
+                {
+                    allPresets = allPresets.OrderBy(p => 
+                    {
+                        int index = _currentSettings.PresetOrder.IndexOf(p.Id);
+                        return index != -1 ? index : int.MaxValue;
+                    }).ToList();
+                }
+
+                foreach (var p in allPresets)
                 {
                     Presets.Add(p);
                 }
 
                 if (SelectedGroup == null || !Groups.Contains(SelectedGroup))
                 {
-                    SelectedGroup = Groups.FirstOrDefault();
+                    SelectedGroup = Groups.FirstOrDefault(g => !g.IsSeparator);
                 }
             }
         }
         catch (Exception ex)
         {
             GlobalStatusMessage = "讀取配置失敗: " + ex.Message;
+        }
+    }
+
+    public void SavePresetOrder()
+    {
+        if (_currentSettings != null)
+        {
+            _currentSettings.PresetOrder = Presets.Select(p => p.Id).ToList();
+            _settingsService.SaveSettings(_currentSettings);
         }
     }
 

@@ -3,8 +3,16 @@
   "PortableInstallRoot": "",
   "PostInstallSelectionBehavior": "KeepAll",
   "RememberLastNavigation": true,
-  "LastSelectedGroupId": "new-pc",
-  "LastSelectedSectionId": "browser",
+  "LastSelectedGroupId": "all-apps",
+  "LastSelectedSectionId": "all-apps-section",
   "UiScalePreset": "Medium",
-  "ListDensity": "Compact"
+  "ListDensity": "Compact",
+  "PresetOrder": [
+    "group-preset-new-pc",
+    "group-preset-dev",
+    "group-preset-gaming",
+    "standard-reinstall",
+    "dev-kit",
+    "common-portable"
+  ]
 }

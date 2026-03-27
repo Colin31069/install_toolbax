@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace InstallToolbox.Models;
@@ -10,7 +11,7 @@ public enum ListDensity { Compact, Comfortable }
 public class UserSettings
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public ThemeMode ThemeMode { get; set; } = ThemeMode.System;
+    public ThemeMode ThemeMode { get; set; } = ThemeMode.Dark; // Default to Dark as per new requirement
 
     public string PortableInstallRoot { get; set; } = string.Empty;
 
@@ -26,4 +27,6 @@ public class UserSettings
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public ListDensity ListDensity { get; set; } = ListDensity.Comfortable;
+
+    public List<string> PresetOrder { get; set; } = new();
 }

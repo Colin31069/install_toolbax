@@ -1,0 +1,9 @@
+- [x] Update UserSettings.cs for default dark mode and custom preset ordering
+- [x] Update AppGroupViewModel.cs to support `IsSeparator` and `IsSpecial` (for All Apps / Portable Toolkit)
+- [x] Update AppPreset.cs to support custom ordering or just handle it in ViewModel and Settings.
+- [x] Refactor MainViewModel.cs `LoadData()` to convert old groups to presets and map sections to left sidebar groups.
+- [x] Implement preset drag-and-drop or simple reordering (or just rely on saving order). The user wants Drag and Drop reordering in the UI.
+- [x] Update MainViewModel.cs for Preset Drag and Drop reordering logic and "Show More" expansion.
+- [x] Update MainWindow.xaml for Left Sidebar Separator and Single-section TabControl collapsing.
+- [x] Update MainWindow.xaml for Preset area wrap/expand and Drag & Drop (using GongSolutions.WPF.DragDrop? Or native drag drop?). Wait, do we have GongSolutions? Let's check `InstallToolbox.csproj`.
+- [x] Make Dark Theme the default in Settings.
