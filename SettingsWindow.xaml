@@ -1,0 +1,89 @@
+<ui:FluentWindow x:Class="InstallToolbox.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:viewmodels="clr-namespace:InstallToolbox.ViewModels"
+        mc:Ignorable="d"
+        Title="設定" Height="680" Width="600"
+        WindowStartupLocation="CenterOwner"
+        WindowBackdropType="Mica"
+        WindowCornerPreference="Round"
+        ExtendsContentIntoTitleBar="True">
+    
+    <ui:FluentWindow.DataContext>
+        <viewmodels:SettingsViewModel />
+    </ui:FluentWindow.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <ui:TitleBar Title="設定" Grid.Row="0" Margin="0,0,0,10" />
+
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0" Margin="10,0,10,10">
+            <TabItem Header="新增應用程式">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,15,10">
+                    <StackPanel>
+                        <!-- 基本設定 -->
+                        <TextBlock Text="基本設定" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                        <ui:TextBox PlaceholderText="輸入 App Id (必填，不可重複)" Text="{Binding AppId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                        <ui:TextBox PlaceholderText="輸入名稱 Name (必填)" Text="{Binding AppName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                        <ui:TextBox PlaceholderText="輸入描述 Description" Text="{Binding AppDescription, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="來源類型: " VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox ItemsSource="{Binding SourceTypes}" SelectedItem="{Binding SelectedSourceType}" Width="150"/>
+                        </StackPanel>
+                        <ui:TextBox PlaceholderText="輸入來源 Source (必填)" Text="{Binding Source, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="安裝檔類型: " VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox ItemsSource="{Binding InstallerTypes}" SelectedItem="{Binding SelectedInstallerType}" Width="150"/>
+                            <CheckBox Content="需要管理員權限" IsChecked="{Binding RequiresAdmin}" Margin="20,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- 安裝分類 -->
+                        <TextBlock Text="選擇分類擺放 (可複選)" FontWeight="Bold" FontSize="16" Margin="0,15,0,10"/>
+                        <TextBlock Text="* 將自動加入至 `All Apps`" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,5"/>
+                        <ItemsControl ItemsSource="{Binding GroupSelections}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,0,5">
+                                        <TextBlock>
+                                            <Run Text="{Binding GroupName}"/>
+                                            <Run Text=" > "/>
+                                            <Run Text="{Binding SectionName}"/>
+                                        </TextBlock>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- 進階設定區域 -->
+                        <Expander Header="進階設定" Margin="0,15,0,10">
+                            <StackPanel Margin="10">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="部署類型: " VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <ComboBox ItemsSource="{Binding DeploymentTypes}" SelectedItem="{Binding SelectedDeploymentType}" Width="150"/>
+                                </StackPanel>
+                                <ui:TextBox PlaceholderText="安裝參數 InstallArgs" Text="{Binding InstallArgs, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <ui:Button Content="儲存 App" Appearance="Primary" Command="{Binding SaveAppCommand}" 
+                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" 
+                                   Margin="0,20,0,0" Width="120" HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="一般設定">
+                <TextBlock Text="預留之一般設定區域" Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</ui:FluentWindow>

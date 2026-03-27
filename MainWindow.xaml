@@ -109,10 +109,15 @@
                         </ItemsControl>
                     </StackPanel>
 
-                    <!-- 主題切換按鈕，重置到 100% 可點擊區 -->
-                    <ui:Button Grid.Column="1" Appearance="Transparent" Command="{Binding ToggleThemeCommand}" ToolTip="切換系統明暗佈景" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="{Binding ThemeIcon}" FontSize="18"/>
-                    </ui:Button>
+                    <!-- 右側操作區：設定與主題切換 -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <ui:Button Appearance="Transparent" Command="{Binding OpenSettingsCommand}" ToolTip="設定" Margin="0,0,5,0">
+                            <ui:SymbolIcon Symbol="Settings24" FontSize="18" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        </ui:Button>
+                        <ui:Button Appearance="Transparent" Command="{Binding ToggleThemeCommand}" ToolTip="切換系統明暗佈景">
+                            <ui:SymbolIcon Symbol="{Binding ThemeIcon}" FontSize="18" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        </ui:Button>
+                    </StackPanel>
                 </Grid>
             </Border>
 

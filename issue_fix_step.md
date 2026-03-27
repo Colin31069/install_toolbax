@@ -1,357 +1,294 @@
 # Current Fix Step
 
-This file should contain only the current round of instructions for the AI agent.
+This file contains only the current round of instructions for the AI agent.
 
 Current goals:
 
-1. Fix the top-right theme toggle button because it still has no visible effect.
-2. Add support for a new "Portable Toolkit" area.
-3. After making changes, append a summary to `modification_log.md`.
+1. Add an in-app way to create new app entries so users do not have to edit `apps_repository.json` manually.
+2. Add a small settings gear icon to the left of the theme toggle button and hide the app-creation feature inside Settings.
+3. Fix the current bug where the theme toggle icon disappears after switching to dark theme.
+4. After making changes, append a summary to `modification_log.md`.
 
-## 1. Fix the theme toggle button
+## 1. Add a Settings entry point
 
-### Current situation
+### Requirement
 
-The previous hypothesis is no longer enough:
+The new app-creation workflow must not be exposed directly in the main app list area.
 
-- `SystemThemeWatcher.Watch(this)` has already been removed.
-- `MainViewModel.ToggleTheme()` still exists.
-- The top-right button in `MainWindow.xaml` is still bound to `ToggleThemeCommand`.
-- The user tested again and the UI still shows no visible response when clicking the button.
+It should be hidden behind a Settings entry point:
 
-This means the problem is not solved by removing the system theme watcher alone.
+- add a small gear icon button
+- place it immediately to the left of the theme toggle button
+- keep both buttons in the same top-right action area
 
-### Most likely causes now
+### UI requirement
 
-Do not guess. Validate these two possibilities first:
+Current layout already has a top-right action button inside the presets card area.
 
-1. The button command is not firing at all.
-2. The command is firing, but `ApplicationThemeManager.Apply(...)` is not producing an actual visible UI theme change.
+For this round:
 
-The first possibility is currently the most suspicious because the button is still visually layered on top of the custom `TitleBar` instead of being placed in a clearly safe interactive region. That can easily cause:
+- keep the theme toggle on the far right
+- add the settings gear button immediately to its left
+- make both buttons visually consistent
+- ensure both buttons remain fully clickable in both light and dark themes
 
-- the button to look clickable
-- but click input to be swallowed by title bar drag behavior
-- or unstable hit testing / focus behavior
+### Recommended implementation
 
-### Do not repeat these mistakes
+Do not overbuild this.
 
-- Do not blame `SystemThemeWatcher` again without new evidence.
-- Do not only tweak `Apply()` parameters without confirming whether the command is actually firing.
-- Do not rely only on visual guessing.
+A first version is acceptable as either:
 
-### Required debugging sequence
+- a modal settings dialog
+- a flyout / content dialog
+- a dedicated settings panel opened from the gear button
 
-#### Step 1: Prove whether `ToggleTheme()` is being executed
+Prefer the simplest stable implementation that fits the current codebase.
 
-This is mandatory.
+## 2. Add an in-app "Add App" editor
 
-Add minimal diagnostics:
+### Problem to solve
 
-- a debug log, temporary status message, or `Debug.WriteLine` at the start of `ToggleTheme()`
-- a listener for `ApplicationThemeManager.Changed`
+Users should not have to open `apps_repository.json`, understand the schema manually, and risk breaking JSON formatting or structure.
 
-You must confirm all of the following:
-
-- whether clicking the button enters `ToggleTheme()`
-- whether `ApplicationThemeManager.Changed` fires
-
-Interpretation:
-
-- If `ToggleTheme()` is not entered, the problem is the button click chain.
-- If `ToggleTheme()` is entered but `Changed` never fires, the problem is the theme manager call.
-- If both happen but the UI still does not visibly change, the problem is that the theme resources are not actually affecting the current visual layer.
-
-#### Step 2: Stop placing the theme button directly on top of the TitleBar
-
-The current placement is high risk.
-
-Use one of these approaches:
-
-Option A:
-
-- move the theme button out of the TitleBar overlay
-- place it in a dedicated toolbar / header area in the main content region
-- verify behavior first, then refine layout later
-
-Option B:
-
-- if the current WPF-UI `TitleBar` supports an official action-content / right-content slot, use that supported API instead of manual overlay
-
-For this round, prefer Option A because stability matters more than keeping the exact current visual placement.
-
-#### Step 3: Make theme switching observable
-
-Right now the user cannot tell whether anything happened.
-
-Add an observable theme state:
-
-- update the icon when the theme changes
-  - show moon when the app is in light theme
-  - show sun when the app is in dark theme
-- if useful, expose the current theme in a tooltip or temporary status text
-
-This is not only a UX improvement. It is also a debugging aid.
-
-#### Step 4: Use the most appropriate theme apply call for the current WPF-UI version
-
-Current code uses:
-
-```csharp
-ApplicationThemeManager.Apply(newTheme);
-```
-
-Review the available overloads for the installed WPF-UI version and prefer the one that more fully updates:
-
-- application theme
-- backdrop behavior
-- accent update
-
-Do not randomly change APIs. Use the overload only if it matches the installed version and improves consistency.
-
-#### Step 5: Verify that the current glass-style UI actually reacts to theme changes
-
-The current UI now uses:
-
-- `DynamicResource`
-- a custom `GlassCardStyle`
-- Mica / glass-like backgrounds
-
-Verify that these elements visibly change between light and dark themes:
-
-- main background
-- left group card
-- preset card
-- bottom status card
-- DataGrid background / text / grid lines
-
-If these do not change, then the theme manager may be working partially while the custom visual layer remains effectively static.
-
-### Acceptance criteria
-
-1. Clicking the theme button must definitely execute `ToggleTheme()`.
-2. `ApplicationThemeManager.Changed` must become observable during testing.
-3. The UI must immediately show a clear light/dark difference.
-4. The icon must update with the current theme state.
-5. The app must no longer feel like "nothing happened" after clicking.
-
-## 2. Add support for a Portable Toolkit area
-
-### Requirement summary
-
-Add a new area for portable tools that do not require a traditional installation.
-
-This is not just a new visual group. It must also address:
-
-- how portable apps are represented in the data model
-- how the install engine handles them
-- how the UI distinguishes them from normal installable packages
+The app should provide a guided form-based workflow for creating new app entries safely.
 
 ### Scope for this round
 
-At minimum, the app should support:
+The required minimum is:
 
-- a new top-level group named `Portable Toolkit`
-- child sections inside that group
-- selectable portable items in the UI
-- batch execution that performs download / extract / prepare instead of normal installation
+- a form in Settings that allows creating a new app entry
+- validation before saving
+- safe write-back to `apps_repository.json`
+- UI refresh after save so the newly added app becomes visible without manual JSON editing
 
-### Reference tool list from the user
+This round does not need a full "edit every existing app" administration suite unless it comes naturally from the implementation.
 
-#### System / file tools
+Focus on safe app creation first.
 
-- Everything
-- WizTree
-- Process Explorer
-- Autoruns
-- 7-Zip Portable
-- CrystalDiskInfo
+## 3. Required app-creation workflow
 
-#### Documents / PDF / office
+### UX goal
 
-- SumatraPDF
-- PDF-XChange Editor Portable
-- LibreOffice Portable
-- Notepad++ Portable
+The common case should be easy:
 
-#### Network / transfer / remote
+- add a normal Winget app
+- assign a name
+- choose where it should appear
+- save safely
 
-- FileZilla Portable
-- PuTTY Portable
-- TeamViewer Portable
-- Google Chrome Portable
+Do not force users to deal with every low-level JSON detail up front.
 
-#### Multimedia
+### Recommended form structure
 
-- VLC Media Player Portable
-- GIMP Portable
-- IrfanView Portable
+Create a form with two levels:
 
-### Do not implement the wrong thing
+#### Basic fields
 
-- Do not only add a new group in the UI.
-- Do not push portable tools into the normal Winget installation flow.
-- Do not assume the current `InstallEngine` already supports portable tools.
+- `Id`
+- `Name`
+- `Description`
+- `IconPath` (optional in first version)
+- `SourceType`
+- `Source`
+- `InstallerType`
+- `RequiresAdmin`
 
-### Why the current engine is not enough
+#### Placement fields
 
-Right now the engine behavior for:
+- allow selecting one or more existing group sections
+- or at minimum allow choosing whether the app should only appear in `All Apps`
 
-- `SourceType == DirectUrl`
-- `InstallerType == Zip`
+Important:
 
-is effectively "download the file and then try to execute it".
+- if the app is added only to `Apps`, it will still appear in `All Apps`
+- but users should ideally be able to place it into existing groups/sections without editing JSON manually
 
-That means:
+#### Advanced section
 
-- a `.zip` portable package will not be extracted
-- it will not be organized into a stable tool folder
-- the app will not prepare a ready-to-use portable executable
+Hide advanced fields behind an expandable "Advanced" section:
 
-Therefore, supporting portable tools requires a real download/extract workflow, not only new JSON entries.
+- `DeploymentType`
+- `InstallArgs`
+- `Dependencies`
+- `RetryCount`
+- `InstallCheck`
+- `PortableTargetFolder`
+- `PortableEntryRelativePath`
+- `PortableExtractSubfolder`
 
-## 3. Portable data model requirements
+This keeps the common Winget path simple while still supporting future portable scenarios.
 
-### Minimum acceptable model change
+## 4. Save and validation requirements
 
-Extend the existing app model enough to represent portable packages clearly.
+### Current limitation
 
-Preferred approach:
+`ConfigService` currently loads configuration but does not provide a safe save workflow.
 
-- add `PackageKind` or `DeploymentType`
-  - `Installed`
-  - `Portable`
-- add `PortableTargetFolder`
-- add `PortableEntryRelativePath`
-- add `PortableExtractSubfolder` when needed
+This round must add save support.
 
-If a new enum is not added, there still must be a clear and explicit way to distinguish portable items. Do not infer everything only from `InstallerType == Zip`.
+### Required validation
 
-### Install check requirements
+Before saving:
 
-Normal apps currently rely mostly on Winget checks.
+- `Id` must not be empty
+- `Name` must not be empty
+- `Source` must not be empty
+- `Id` must be unique across `Apps`
+- selected enum values must be valid
+- if `DeploymentType == Portable`, required portable fields must be validated
+- if `InstallCheck.Type == Path`, the path value must not be empty
 
-Portable tools should not use that approach.
+### Required save behavior
 
-Portable items should support at least:
+Do not write JSON unsafely.
 
-- `InstallCheckType.Path`
+Use a safe save strategy:
 
-Checks should verify:
+1. load current repository
+2. add the new app entry to `Apps`
+3. update selected group sections by adding the new `AppId`
+4. serialize using the same repository model
+5. write to a temporary file first
+6. keep a backup of the previous JSON if practical
+7. replace the main file only after successful serialization
 
-- whether the target portable executable exists
-- or whether the portable tool directory exists
+### Encoding and formatting
 
-If `InstallCheckType.Path` is not fully implemented yet, implement it in this round.
+Save the repository in UTF-8 and keep JSON formatting readable.
 
-## 4. Portable execution workflow requirements
+The app should reduce the chance of invalid manual edits, not introduce a new way to corrupt the file.
 
-### Acceptable first version
+## 5. Refresh behavior after save
 
-When a user selects a portable tool, the batch workflow should:
+After the user saves a new app:
 
-1. download the package
-2. extract it if it is a zip archive
-3. store a single-file portable executable in a stable tool folder if extraction is not needed
-4. mark the item as ready/successful
-5. allow future runs to detect that the tool is already prepared
+- the app should appear immediately in the UI
+- `All Apps` must show it
+- any selected group/section placements must show it too
+- the user should not need to restart the application
 
-### Recommended target location
+Recommended approach:
 
-Use one stable strategy for portable tools, for example:
+- reload the repository after a successful save
+- rebuild the ViewModel collections cleanly
 
-- `%LocalAppData%/InstallToolbox/PortableTools/<ToolName>`
+Do not leave the UI in a stale state after save.
 
-or
+## 6. Suggested Settings content for this round
 
-- `%UserProfile%/Tools/Portable/<ToolName>`
+The Settings surface does not need to be large yet.
 
-Pick one consistent location and keep it predictable.
+For this round, it is enough to include:
 
-### Status wording
+- `Add App`
+- optional placeholder section for future settings
 
-For portable items, avoid misleading "Installing" wording if possible.
+Recommended first layout:
 
-Preferred wording includes:
+- header: `Settings`
+- tab / section 1: `Add App`
+- optional future section: `General`
 
-- `Downloading`
-- `Extracting`
-- `Ready`
+The main goal is to hide the advanced management feature behind Settings while still keeping it usable.
 
-If new status enum values are too large a change for this round, at least make the visible status text understandable for portable workflows.
+## 7. Fix the dark-theme icon disappearance bug
 
-## 5. UI and grouping requirements
+### Current confirmed behavior
 
-### Add a new group
+Theme switching appears to work now because the app can enter dark mode.
 
-Add:
+However, after switching to dark mode:
 
-- `Portable Toolkit`
+- the theme toggle button is still present
+- but the icon becomes invisible / blank
 
-Recommended sections:
+This is no longer a "button does not work" problem.
+It is now an icon rendering / icon-state problem.
 
-1. System / file tools
-2. Documents / PDF / office
-3. Network / transfer / remote
-4. Multimedia
+### Most likely causes
 
-### Make portable items visually distinguishable
+The strongest current suspects are:
 
-Portable items should not look identical to normal Winget install items.
+1. The dark-theme icon symbol name is invalid for the installed WPF-UI / Fluent symbol set.
+2. The icon foreground is not explicitly bound to a theme-safe brush, so it blends into the button background in dark mode.
 
-At minimum, do one of the following:
+Current code uses a string-based symbol binding and sets the dark-theme icon to:
 
-- show a `Portable` tag
-- include `Portable` / `No installation required` in the description
-- add a visible type column or badge
+- `WeatherSun24`
 
-### Presets
+That must be verified, not assumed.
 
-If time allows, add a preset such as:
+An empty icon after theme switch strongly suggests one of these:
 
-- `Common Portable Toolkit`
+- the symbol token does not exist
+- the symbol binding fails silently
+- the icon color becomes unreadable in dark mode
 
-This is optional for this round. The core requirement is a working portable flow.
+### Required fix sequence
 
-## 6. Recommended first portable set for implementation
+#### Step 1: Verify the symbol name
 
-Do not try to support the full portable list immediately.
+Do not assume `WeatherSun24` is valid.
 
-For this round, start with 3 to 5 representative items to validate the workflow:
+Confirm that the selected icon token actually exists in the installed WPF-UI symbol set.
 
-1. CrystalDiskInfo
-2. WizTree
-3. Process Explorer
-4. SumatraPDF
-5. PuTTY Portable
+If it does not exist:
 
-Why:
+- replace it with a confirmed valid sun/day icon token
+- keep the moon icon for light mode if that token is already working
 
-- they cover common real-world use cases
-- they help validate zip/exe/path-check scenarios
-- they are useful enough to prove the concept
+#### Step 2: Make the icon visible in both themes
 
-After the workflow is stable, expand the catalog.
+Set the icon foreground explicitly using a theme-aware dynamic brush.
 
-## 7. Execution order for this round
+Do not rely on implicit inheritance if it is unstable.
 
-1. First make theme switching observable and debuggable.
-2. Ensure the button definitely triggers and the UI definitely changes theme.
-3. Then add the portable data model and workflow support.
-4. Then add the `Portable Toolkit` group and initial sample entries.
-5. Finally append this round's summary to `modification_log.md`.
+The icon must remain visible in:
 
-## 8. Acceptance criteria for this round
+- light theme
+- dark theme
+- hover state
+- pressed state
 
-### Theme
+#### Step 3: Keep icon state aligned with theme state
 
-1. Clicking the top-right button must immediately switch the visible app theme.
-2. The user must be able to tell the current theme from both the UI and the icon.
-3. The app must no longer behave as if the button does nothing.
+After toggling:
 
-### Portable toolkit
+- light theme should show the moon icon
+- dark theme should show the sun icon
 
-1. The UI contains a `Portable Toolkit` group.
-2. At least 3 to 5 portable tools are present as initial entries.
-3. Selecting a portable item triggers a real download/extract/prepare workflow instead of trying to execute a zip file as an installer.
-4. Re-running the app must correctly detect already-prepared portable tools and avoid unnecessary repeated work.
+The icon must not disappear, lag behind, or show the wrong state.
+
+### Acceptance criteria for the icon bug
+
+1. The theme toggle icon remains visible after switching to dark theme.
+2. The icon remains visible after switching back to light theme.
+3. The icon state correctly reflects the current theme.
+4. The settings gear icon is also clearly visible in both themes.
+
+## 8. Recommended implementation order
+
+1. Add the settings gear button to the left of the theme toggle.
+2. Fix the dark-theme icon disappearance bug first, because both top-right icons must remain visible.
+3. Add a simple Settings surface.
+4. Implement the in-app Add App form.
+5. Add safe JSON save support in `ConfigService`.
+6. Reload the repository after save and refresh the UI.
+7. Append the implementation summary to `modification_log.md`.
+
+## 9. Acceptance criteria for this round
+
+### Settings and app creation
+
+1. A settings gear icon exists to the left of the theme toggle.
+2. Clicking the gear opens a Settings UI.
+3. The Settings UI includes an `Add App` workflow.
+4. Users can add a normal app without editing raw JSON manually.
+5. Validation prevents broken or incomplete entries from being saved.
+6. The new app appears in the UI immediately after save.
+
+### Theme / icon behavior
+
+1. The theme toggle still works.
+2. The theme icon no longer disappears in dark mode.
+3. The gear icon and theme icon are both readable in light and dark themes.

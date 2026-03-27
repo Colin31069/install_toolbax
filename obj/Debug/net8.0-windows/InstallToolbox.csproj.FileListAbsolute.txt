@@ -26,3 +26,5 @@ C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-window
 C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\bin\Debug\net8.0-windows\Wpf.Ui.dll
 C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\bin\Debug\net8.0-windows\Wpf.Ui.Abstractions.dll
 C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\App.baml
+C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\SettingsWindow.g.cs
+C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\SettingsWindow.baml

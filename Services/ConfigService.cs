@@ -42,4 +42,23 @@ public class ConfigService
         var repo = JsonSerializer.Deserialize<AppsRepository>(json, options);
         return repo;
     }
+
+    public void SaveConfig(AppsRepository repo)
+    {
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        options.Converters.Add(new JsonStringEnumConverter());
+
+        string json = JsonSerializer.Serialize(repo, options);
+
+        if (File.Exists(_configFilePath))
+        {
+            File.Copy(_configFilePath, _configFilePath + ".bak", true);
+        }
+
+        File.WriteAllText(_configFilePath, json, System.Text.Encoding.UTF8);
+    }
 }

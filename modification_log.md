@@ -70,3 +70,28 @@
   - 新增名為 `Portable Toolkit` 的全新大分類群組。
 
 *(後續變更皆會依序記錄於此處)*
+
+## [Phase 6] Settings UI, App Creation Workflow, and Theme Icon Fix
+
+### `MainWindow.xaml` & `MainViewModel.cs`
+- **目的**: 修正 Dark Mode 佈景切換時圖示消失的問題，並新增「設定」按鈕。
+- **操作**: 
+  - 主題切換的 `ui:SymbolIcon` 補上 `Foreground="{DynamicResource TextFillColorPrimaryBrush}"` 明確綁定。
+  - 將不穩定的圖標 `WeatherSun24` 替換為 `WeatherSunny24` 以提高相容性。
+  - 於主畫面右上角 `ThemeToggle` 左側新增「設定」的齒輪按鈕 (`Settings24`)，並連結至 `OpenSettingsCommand`。
+  - `LoadData()` 方法內部加入 `Groups.Clear()` 與 `Presets.Clear()` 防止重載配置檔時資料重複疊加。
+
+### `SettingsWindow.xaml` & `SettingsWindow.xaml.cs` & `SettingsViewModel.cs` (新增)
+- **目的**: 提供不必手動編輯 `.json` 的圖形化應用程式新增介面。
+- **操作**: 
+  - 建立專屬的 `SettingsWindow` 視窗，並套用 `FluentWindow` / `Mica` 樣式。
+  - 新增包含基本設定區（Id、名稱、描述、來源類型、安裝檔類型）與進階設定區（部署類型、安裝參數）的 `SettingsViewModel`。
+  - 表單填寫具備簡單的空值檢查與 ID 唯一性驗證。
+  - 允許使用者透過 CheckBox 在現有的 `AppGroup` 與 `AppSection` 勾選並安置該軟體。
+
+### `ConfigService.cs`
+- **目的**: 安全地將修改後的 `AppsRepository` 寫回 `apps_repository.json`，並保留備份機制。
+- **操作**: 
+  - 新增 `SaveConfig(AppsRepository repo)` 方法。
+  - 寫入前若目標存在，自動利用 `File.Copy` 產出 `.bak` 備份檔。
+  - 使用 `JsonSerializerOptions`（如 `WriteIndented`、`UnsafeRelaxedJsonEscaping`）來保留 UTF-8 可讀性排版。

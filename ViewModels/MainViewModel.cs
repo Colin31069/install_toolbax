@@ -66,6 +66,9 @@ public partial class MainViewModel : ObservableObject
                     dict[app.Id] = app;
                 }
 
+                Groups.Clear();
+                Presets.Clear();
+
                 // Append "All Apps" group
                 var allAppsGroup = new AppGroupViewModel { Id = "all-apps", Name = "所有程式", Description = "所有支援的軟體清單" };
                 var allAppsSection = new AppSectionViewModel { Id = "all-apps-section", Name = "所有程式清單", Description = "不分類顯示所有軟體" };
@@ -178,7 +181,20 @@ public partial class MainViewModel : ObservableObject
         System.Diagnostics.Debug.WriteLine($"[Theme] Changing from {currentTheme} to {newTheme}");
         Wpf.Ui.Appearance.ApplicationThemeManager.Apply(newTheme);
 
-        ThemeIcon = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSun24" : "WeatherMoon24";
+        ThemeIcon = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSunny24" : "WeatherMoon24";
         System.Diagnostics.Debug.WriteLine($"[Theme] Finished toggling theme. New Icon is {ThemeIcon}");
+    }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        var settingsWindow = new SettingsWindow
+        {
+            Owner = App.Current.MainWindow
+        };
+        settingsWindow.ShowDialog();
+        
+        // 重載設定檔重新刷新畫面
+        LoadData();
     }
 }
