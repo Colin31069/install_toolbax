@@ -19,7 +19,9 @@ public class SettingsService
     {
         if (!File.Exists(_settingsFilePath))
         {
-            return new UserSettings();
+            var defaultSettings = new UserSettings();
+            ApplyDefaultDarkMigration(defaultSettings);
+            return defaultSettings;
         }
 
         try
@@ -32,11 +34,20 @@ public class SettingsService
                 AllowTrailingCommas = true
             };
             options.Converters.Add(new JsonStringEnumConverter());
-            return JsonSerializer.Deserialize<UserSettings>(json, options) ?? new UserSettings();
+            var settings = JsonSerializer.Deserialize<UserSettings>(json, options) ?? new UserSettings();
+
+            if (ApplyDefaultDarkMigration(settings))
+            {
+                SaveSettings(settings);
+            }
+
+            return settings;
         }
         catch
         {
-            return new UserSettings();
+            var fallbackSettings = new UserSettings();
+            ApplyDefaultDarkMigration(fallbackSettings);
+            return fallbackSettings;
         }
     }
 
@@ -55,5 +66,22 @@ public class SettingsService
             File.WriteAllText(_settingsFilePath, json, System.Text.Encoding.UTF8);
         }
         catch { }
+    }
+
+    private static bool ApplyDefaultDarkMigration(UserSettings settings)
+    {
+        if (settings.HasAppliedDefaultDarkMigration)
+        {
+            return false;
+        }
+
+        settings.HasAppliedDefaultDarkMigration = true;
+
+        if (settings.ThemeMode == ThemeMode.Light)
+        {
+            settings.ThemeMode = ThemeMode.Dark;
+        }
+
+        return true;
     }
 }

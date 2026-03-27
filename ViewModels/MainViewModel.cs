@@ -86,23 +86,9 @@ public partial class MainViewModel : ObservableObject
 
     private void ApplyUserSettings()
     {
-        var currentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
-        Wpf.Ui.Appearance.ApplicationTheme targetTheme = currentTheme;
+        var targetTheme = App.ResolveApplicationTheme(_currentSettings.ThemeMode);
 
-        if (_currentSettings.ThemeMode == ThemeMode.System)
-        {
-            var systemTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetSystemTheme();
-            targetTheme = systemTheme == Wpf.Ui.Appearance.SystemTheme.Dark 
-                ? Wpf.Ui.Appearance.ApplicationTheme.Dark 
-                : Wpf.Ui.Appearance.ApplicationTheme.Light;
-        }
-        else if (_currentSettings.ThemeMode == ThemeMode.Light)
-            targetTheme = Wpf.Ui.Appearance.ApplicationTheme.Light;
-        else if (_currentSettings.ThemeMode == ThemeMode.Dark)
-            targetTheme = Wpf.Ui.Appearance.ApplicationTheme.Dark;
-
-        Wpf.Ui.Appearance.ApplicationThemeManager.Apply(targetTheme);
-        ThemeIcon = targetTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSunny24" : "WeatherMoon24";
+        ApplyTheme(targetTheme);
 
         UiScaleRate = _currentSettings.UiScalePreset switch
         {
@@ -274,6 +260,27 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ClearAllSelections()
+    {
+        if (IsInstalling) return;
+
+        var selectedApps = _allApps.Where(a => a.IsSelected).ToList();
+
+        if (selectedApps.Count == 0)
+        {
+            GlobalStatusMessage = "目前沒有已選取的項目";
+            return;
+        }
+
+        foreach (var app in selectedApps)
+        {
+            app.IsSelected = false;
+        }
+
+        GlobalStatusMessage = $"已取消 {selectedApps.Count} 個項目的選取";
+    }
+
+    [RelayCommand]
     private async Task StartBatchInstallAsync()
     {
         if (IsInstalling) return;
@@ -335,12 +342,11 @@ public partial class MainViewModel : ObservableObject
     private void ToggleTheme()
     {
         var currentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
-        var newTheme = currentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark 
-            ? Wpf.Ui.Appearance.ApplicationTheme.Light 
+        var newTheme = currentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark
+            ? Wpf.Ui.Appearance.ApplicationTheme.Light
             : Wpf.Ui.Appearance.ApplicationTheme.Dark;
         
-        Wpf.Ui.Appearance.ApplicationThemeManager.Apply(newTheme);
-        ThemeIcon = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSunny24" : "WeatherMoon24";
+        ApplyTheme(newTheme);
         
         _currentSettings.ThemeMode = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? ThemeMode.Dark : ThemeMode.Light;
         _settingsService.SaveSettings(_currentSettings);
@@ -358,5 +364,11 @@ public partial class MainViewModel : ObservableObject
         _currentSettings = _settingsService.LoadSettings();
         ApplyUserSettings();
         LoadData();
+    }
+
+    private void ApplyTheme(Wpf.Ui.Appearance.ApplicationTheme theme)
+    {
+        Wpf.Ui.Appearance.ApplicationThemeManager.Apply(theme);
+        ThemeIcon = theme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSunny24" : "WeatherMoon24";
     }
 }

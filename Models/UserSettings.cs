@@ -11,7 +11,9 @@ public enum ListDensity { Compact, Comfortable }
 public class UserSettings
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public ThemeMode ThemeMode { get; set; } = ThemeMode.Dark; // Default to Dark as per new requirement
+    public ThemeMode ThemeMode { get; set; } = ThemeMode.Dark;
+
+    public bool HasAppliedDefaultDarkMigration { get; set; } = false;
 
     public string PortableInstallRoot { get; set; } = string.Empty;
 

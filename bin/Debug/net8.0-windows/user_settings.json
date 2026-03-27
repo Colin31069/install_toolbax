@@ -1,5 +1,6 @@
 ﻿{
-  "ThemeMode": "Light",
+  "ThemeMode": "Dark",
+  "HasAppliedDefaultDarkMigration": true,
   "PortableInstallRoot": "",
   "PostInstallSelectionBehavior": "KeepAll",
   "RememberLastNavigation": true,
@@ -10,9 +11,9 @@
   "PresetOrder": [
     "group-preset-new-pc",
     "group-preset-dev",
-    "group-preset-gaming",
     "standard-reinstall",
     "dev-kit",
+    "group-preset-gaming",
     "common-portable"
   ]
 }

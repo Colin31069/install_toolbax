@@ -321,6 +321,102 @@
       "Progress": 0,
       "ErrorMessage": "",
       "IsSelected": false
+    },
+    {
+      "Id": "XPFCC4CD725961",
+      "Name": "LINE Desktop",
+      "Category": "",
+      "Description": "通訊軟體",
+      "IconPath": "UserAssets/Icons/XPFCC4CD725961.png",
+      "SourceType": "Winget",
+      "Source": "msstore",
+      "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
+      "InstallCheck": null,
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
+    },
+    {
+      "Id": "TorProject.TorBrowser",
+      "Name": "Tor Browser",
+      "Category": "",
+      "Description": "最高等級的隱私匿名性瀏覽器",
+      "IconPath": "UserAssets/Icons/TorProject.TorBrowser.jpg",
+      "SourceType": "Winget",
+      "Source": "Tor Browser",
+      "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
+      "InstallCheck": null,
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
+    },
+    {
+      "Id": "Google.Antigravity",
+      "Name": "Antigravity",
+      "Category": "",
+      "Description": "Google開發的AI 原生整合開發環境 (IDE)",
+      "IconPath": "UserAssets/Icons/Google.Antigravity.jpg",
+      "SourceType": "Winget",
+      "Source": "Google.Antigravity",
+      "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
+      "InstallCheck": null,
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
+    },
+    {
+      "Id": "Docker.DockerDesktop",
+      "Name": "Docker Desktop",
+      "Category": "",
+      "Description": "讓軟體具備『即裝即用』的特性。",
+      "IconPath": "UserAssets/Icons/Docker.DockerDesktop.png",
+      "SourceType": "Winget",
+      "Source": "Docker.DockerDesktop",
+      "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
+      "InstallCheck": null,
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     }
   ],
   "Groups": [
@@ -335,7 +431,8 @@
           "Description": "常見瀏覽器",
           "AppIds": [
             "Google.Chrome",
-            "Opera.Opera"
+            "Opera.Opera",
+            "TorProject.TorBrowser"
           ]
         },
         {
@@ -352,7 +449,8 @@
           "Name": "通訊 / 日常",
           "Description": "聊天與常用日常工具",
           "AppIds": [
-            "Discord.Discord"
+            "Discord.Discord",
+            "XPFCC4CD725961"
           ]
         }
       ]
@@ -368,7 +466,8 @@
           "Description": "程式碼編輯器",
           "AppIds": [
             "Microsoft.VisualStudioCode",
-            "NotepadPlusPlus"
+            "NotepadPlusPlus",
+            "Google.Antigravity"
           ]
         },
         {
@@ -376,7 +475,9 @@
           "Name": "開發工具",
           "Description": "版本控制與其他工具",
           "AppIds": [
-            "Git.Git"
+            "Git.Git",
+            "Google.Antigravity",
+            "Docker.DockerDesktop"
           ]
         }
       ]

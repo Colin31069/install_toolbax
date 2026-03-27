@@ -1,73 +1,82 @@
 # InstallToolbox
 
-InstallToolbox 是一個 Windows WPF 桌面工具，目標是在重灌、換新電腦或建立新環境時，快速批次安裝常用軟體。
+InstallToolbox 是一個以 WPF 製作的 Windows 軟體安裝管理工具，目標是在重灌、換新電腦、建立工作站或整理常用工具時，快速完成軟體勾選、分組瀏覽與批次安裝。
 
-目前專案正從舊版的單層分類模式，逐步演進成更實用的分組式流程：
+目前介面採用 `WPF-UI`，主視覺以 Fluent + Mica 為基底，並以深色主題作為預設體驗。
 
-- `All Apps`
-- 情境分組，例如 `新電腦必裝`、`寫程式`、`打電動`
-- 每個分組底下再切 `Sections`
-- 透過 `Presets` 一鍵勾選常用組合
+## 目前功能
 
-目前 UI 採用 `WPF-UI`，並已導入 Fluent / Glass 風格的現代化介面。
+- 左側以「分類」為主的瀏覽模式，並保留 `所有程式` 與 `Portable Toolkit` 特殊入口。
+- 上方快速預設區可一鍵勾選常用組合，也支援展開後拖曳排序。
+- 中央清單可逐項勾選 App，並顯示狀態、進度與錯誤訊息。
+- 底部提供全域「取消所有選取」與「開始安裝勾選項目」。
+- 內建設定視窗，可調整主題、UI 縮放、清單密度、安裝後清除選取行為，以及新增/編輯 App。
+- 使用 `apps_repository.json` 管理共用軟體清單，使用 `user_settings.json` 儲存本機個人化設定。
 
-## 目前狀態
+## 目前 UI 結構
 
-目前已完成：
+主畫面分成三個區域：
 
-- 建立於 `.NET 8` 的 WPF 桌面應用程式
-- 透過 `apps_repository.json` 管理軟體清單
-- 支援新版資料結構：
-  - `Apps`
-  - `Groups`
-  - `Sections`
-  - `Presets`
-- ViewModel 會自動建立 `All Apps` 群組
-- 支援以 Winget 為主的批次安裝流程
-- 支援 `Winget`、`DirectUrl`、`LocalFile` 三種來源型態
-- 主清單可顯示圖示
-- 主視窗已改為 `WPF-UI` 風格
+1. 左側分類導覽
+   - `所有程式`：顯示全部 App。
+   - 中間分類：由 repository 中各 `Group -> Section` 攤平成可直接點選的分類。
+   - `Portable Toolkit`：保留原本的特殊入口與內部分頁結構。
+2. 上方快速預設區
+   - 點一下 preset 會把對應的 App 標記為已勾選。
+   - 預設只顯示單列，按下「顯示全部」後可展開更多按鈕。
+   - 展開狀態下可直接拖曳 preset 按鈕重新排序，排序會寫回本機設定。
+3. 下方批次操作列
+   - 顯示全域狀態訊息與總進度。
+   - 可一鍵取消所有已勾選項目。
+   - 可對目前勾選的 App 啟動批次安裝。
 
-目前仍在調整中：
+## 快速預設與選取邏輯
 
-- 主題切換按鈕行為
-- Portable Toolkit 流程
-- 部分 JSON / XAML 中文內容仍有編碼問題
+### 快速預設
 
-## 技術堆疊
+- 快速預設來源包含：
+  - repository 中原生定義的 `Presets`
+  - 非 `portable-toolkit` 群組在執行時轉出的 bundle preset
+- 拖曳排序後會把 preset ID 順序存進 `user_settings.json` 的 `PresetOrder`
+- 重新啟動後會沿用上次自訂的順序
 
-- `.NET 8`
-- `WPF`
-- `CommunityToolkit.Mvvm`
-- `WPF-UI 4.2.0`
+### 勾選與清除
 
-## 專案結構
+- 可直接在清單中用勾選框選取 App
+- 點擊 preset 會補選該 preset 對應的 App
+- 底部「取消所有選取」會清除目前所有分類中的已勾選項目，不受左側分類限制
+- 若設定了安裝後清除策略，也會在安裝完成後依規則清掉選取狀態
 
-```text
-InstallToolbox/
-|- Models/
-|- Services/
-|- ViewModels/
-|- Assets/
-|  \- Icons/
-|- apps_repository.json
-|- MainWindow.xaml
-|- App.xaml
-```
+## 主題與本機設定
 
-主要檔案：
+### 深色主題
 
-- `MainWindow.xaml`：主畫面 UI
-- `ViewModels/MainViewModel.cs`：畫面狀態、分組、預設清單與批次安裝入口
-- `Services/InstallEngine.cs`：安裝 / 下載執行邏輯
-- `Services/ConfigService.cs`：設定檔讀取
-- `apps_repository.json`：軟體清單與分組設定
+- 新啟動時預設使用深色主題
+- 啟動階段會先套用主題，再建立主視窗，避免先閃出淺色畫面
+- 針對舊版 `user_settings.json`：
+  - 若尚未做過深色預設遷移
+  - 且主題設定為 `Light`
+  - 啟動時會自動改為 `Dark` 一次
+- 使用者之後仍可透過主畫面右上角按鈕或設定視窗手動切回淺色
 
-## 目前資料結構
+### `user_settings.json`
 
-目前使用的 repository 版本為 `2.0`。
+目前本機設定包含：
 
-最上層格式如下：
+- `ThemeMode`
+- `HasAppliedDefaultDarkMigration`
+- `PortableInstallRoot`
+- `PostInstallSelectionBehavior`
+- `RememberLastNavigation`
+- `LastSelectedGroupId`
+- `LastSelectedSectionId`
+- `UiScalePreset`
+- `ListDensity`
+- `PresetOrder`
+
+## Repository 資料結構
+
+專案目前使用 `apps_repository.json` 作為主要資料來源，版本為 `2.0`。
 
 ```json
 {
@@ -80,9 +89,7 @@ InstallToolbox/
 
 ### Apps
 
-每個軟體只在全域清單定義一次。
-
-目前 `AppItem` 主要欄位包含：
+`Apps` 定義每一個可安裝項目。常用欄位包含：
 
 - `Id`
 - `Name`
@@ -91,23 +98,43 @@ InstallToolbox/
 - `SourceType`
 - `Source`
 - `InstallerType`
+- `DeploymentType`
 - `InstallArgs`
 - `RequiresAdmin`
 - `Dependencies`
 - `RetryCount`
 - `InstallCheck`
-- `CachePolicy`
 
-補充說明：
+範例：
 
-- `Category` 欄位目前仍存在於 model 中，主要用於舊格式相容，不再是新版 UI 的主要分類依據。
-- `Status`、`Progress`、`ErrorMessage`、`IsSelected` 這些屬於執行期間的 UI 狀態，不是靜態設定資料。
+```json
+{
+  "Id": "Microsoft.VisualStudioCode",
+  "Name": "Visual Studio Code",
+  "Description": "輕量且常用的程式碼編輯器",
+  "IconPath": "/Assets/Icons/vscode.png",
+  "SourceType": "Winget",
+  "Source": "Microsoft.VisualStudioCode",
+  "InstallerType": "Winget",
+  "DeploymentType": "Installed",
+  "InstallArgs": "",
+  "RequiresAdmin": true,
+  "Dependencies": [],
+  "RetryCount": 2,
+  "InstallCheck": {
+    "Type": "Winget",
+    "Value": "Microsoft.VisualStudioCode"
+  }
+}
+```
 
-### Groups
+### Groups 與 Sections
 
-`Groups` 用來定義左側導覽分組。
+`Groups` 是 repository 內的原始分組資料，但 UI 會做以下轉換：
 
-每個 Group 底下可以有多個 `Sections`。
+- `portable-toolkit` 群組保留為左側特殊入口
+- 其他群組底下的 `Sections` 會攤平成左側可直接點選的分類
+- 非 `portable-toolkit` 群組本身會在執行時轉成上方的快速預設 bundle
 
 範例：
 
@@ -115,12 +142,12 @@ InstallToolbox/
 {
   "Id": "dev",
   "Name": "寫程式",
-  "Description": "與開發環境相關的工具",
+  "Description": "開發工具與日常工程環境",
   "Sections": [
     {
-      "Id": "ide",
+      "Id": "editors",
       "Name": "編輯器 / IDE",
-      "Description": "程式碼編輯器與 IDE",
+      "Description": "程式碼編輯與 IDE",
       "AppIds": [
         "Microsoft.VisualStudioCode",
         "NotepadPlusPlus"
@@ -132,7 +159,7 @@ InstallToolbox/
 
 ### Presets
 
-`Presets` 用來定義快速勾選組合。
+`Presets` 用來定義一鍵勾選的 App 組合。
 
 範例：
 
@@ -140,35 +167,20 @@ InstallToolbox/
 {
   "Id": "standard-reinstall",
   "Name": "重灌標準清單",
-  "Description": "重灌後常用軟體組合",
+  "Description": "重灌後第一輪常用軟體",
   "AppIds": [
     "Google.Chrome",
     "7zip.7zip",
-    "Discord.Discord"
+    "Microsoft.PowerToys"
   ]
 }
 ```
 
-## 目前 UI 行為
-
-目前畫面主要分成：
-
-- 左側：Groups 分組列表
-- 右上：Preset 快捷按鈕區
-- 中間：Selected Group 對應的 Section 分頁
-- 下方：全域安裝狀態與批次安裝按鈕
-
-目前的額外行為：
-
-- `All Apps` 不是直接寫死在 JSON，而是由 ViewModel 載入時自動產生
-- 點選 preset 會將對應 App 設為已勾選
-- 批次安裝目前以 Winget 套件最穩定
-
-## 目前支援的來源與安裝型態
+## 支援的來源與安裝型態
 
 ### SourceType
 
-目前定義：
+目前模型定義：
 
 - `Winget`
 - `DirectUrl`
@@ -176,41 +188,80 @@ InstallToolbox/
 
 ### InstallerType
 
-目前定義：
+目前模型定義：
 
 - `Winget`
 - `Exe`
 - `Msi`
 - `Zip`
 
-重要限制：
+### DeploymentType
 
-- `Zip` 目前還不是完整的 Portable 部署流程。
-- 後續 Portable Toolkit 會補齊這部分，而不是把壓縮檔當成一般安裝程式處理。
+目前模型定義：
 
-## InstallCheck
+- `Installed`
+- `Portable`
 
-目前 `InstallCheckType` 定義：
+## 設定視窗
 
-- `Registry`
-- `Path`
-- `Winget`
+設定視窗目前分成三個方向：
 
-就目前程式狀態而言：
+1. 新增 App
+   - 可填寫基本資訊、來源、安裝型態、是否需管理員、圖示
+   - 可指定要加入哪些群組/分類
+2. 編輯既有 App
+   - 可修改既有 App 基本欄位
+   - 可重新指定圖示與分組
+3. 一般設定
+   - 主題模式
+   - UI 縮放
+   - 清單密度
+   - Portable 安裝根目錄
+   - 安裝後是否清除已選項目
+   - 是否記住上次導覽位置
 
-- `Winget` 是最主要、最完整的檢查方式
-- `Path` 已經在 enum 中，後續 Portable 流程會更依賴它
-- `Registry` 目前還沒有完整實作
+## 專案結構
 
-## 如何執行專案
+```text
+InstallToolbox/
+|- Assets/
+|- Converters/
+|- Models/
+|- Services/
+|- ViewModels/
+|- App.xaml
+|- MainWindow.xaml
+|- SettingsWindow.xaml
+|- apps_repository.json
+|- README.md
+```
+
+重點檔案：
+
+- `MainWindow.xaml`
+  - 主畫面 UI，包含左側分類、快速預設區、App 清單與底部操作列
+- `MainWindow.xaml.cs`
+  - 快速預設拖曳排序事件
+- `ViewModels/MainViewModel.cs`
+  - 主畫面資料載入、分類轉換、preset 套用、全域清除選取、批次安裝與主題切換
+- `SettingsWindow.xaml`
+  - 設定視窗 UI
+- `ViewModels/SettingsViewModel.cs`
+  - 新增/編輯 App 與一般設定的邏輯
+- `Services/ConfigService.cs`
+  - 載入與儲存 `apps_repository.json`
+- `Services/SettingsService.cs`
+  - 載入與儲存 `user_settings.json`
+
+## 執行與建置
 
 ### 環境需求
 
 - Windows
 - .NET 8 SDK
-- 系統中可使用 Winget
+- 建議已安裝並可使用 `winget`
 
-### 執行
+### 啟動
 
 ```powershell
 dotnet run
@@ -222,80 +273,21 @@ dotnet run
 dotnet build
 ```
 
-## 如何新增一般安裝型軟體
+## 目前限制
 
-1. 在 `apps_repository.json` 的 `Apps` 中新增一筆 App
-2. 設定有效的 `Id`
-3. 指定正確的 `SourceType`
-4. 指定對應的 `InstallerType`
-5. 補上 `InstallCheck`
-6. 在一個或多個 `Sections` 中用 `AppIds` 引用它
-7. 如有需要，再把它加到 `Presets`
+- 目前仍以 `Winget` 安裝流程最穩定
+- `DirectUrl`、`LocalFile` 與部分 portable 流程仍持續補強中
+- repository 與設定檔都屬於本機檔案操作，尚未提供雲端同步或多人共用設定能力
+- 專案目前沒有獨立自動化測試專案，驗證以 `dotnet build` 與手動操作測試為主
 
-範例：
+## 維護建議
 
-```json
-{
-  "Id": "Microsoft.VisualStudioCode",
-  "Name": "Visual Studio Code",
-  "Description": "程式碼編輯器",
-  "IconPath": "/Assets/Icons/vscode.png",
-  "SourceType": "Winget",
-  "Source": "Microsoft.VisualStudioCode",
-  "InstallerType": "Winget",
-  "InstallArgs": "",
-  "RequiresAdmin": true,
-  "Dependencies": [],
-  "InstallCheck": {
-    "Type": "Winget",
-    "Value": "Microsoft.VisualStudioCode"
-  }
-}
-```
+當你更新以下任一項時，建議同步更新 README：
 
-再把它放進某個 section：
-
-```json
-{
-  "Id": "ide",
-  "Name": "編輯器 / IDE",
-  "Description": "程式碼編輯器與 IDE",
-  "AppIds": [
-    "Microsoft.VisualStudioCode"
-  ]
-}
-```
-
-## 目前已知缺口
-
-- 部分 UI 字串與 JSON 中文內容仍有亂碼，後續應統一成 UTF-8。
-- 主題切換按鈕仍在調整中。
-- Portable Toolkit 尚未完整落地到 InstallEngine。
-- `DirectUrl` / `LocalFile` 相關流程仍比 `Winget` MVP 化，驗證能力還需要補強。
-
-## 相關文件
-
-- `grouping_design_spec.md`：分組架構設計方向
-- `issue_fix_step.md`：目前給 AI agent 的修正指示
-- `implementation_plan.md`：目前規劃中的實作方向
-- `modification_log.md`：AI agent 的修改記錄
-
-## 建議維護原則
-
-如果你有更新以下任一項：
-
+- UI 操作流程
 - repository schema
-- 安裝流程
-- 分組方式
-- preset 邏輯
+- preset 行為
+- 設定欄位
+- 安裝流程或支援的來源型態
 
-建議同步更新：
-
-- `README.md`
-- `modification_log.md`
-
-另外建議：
-
-- `apps_repository.json` 統一使用 UTF-8
-- 不要為了分組而重複建立同一個 App
-- 優先透過 `AppIds` 來重用 App 定義
+若實作與 README 不一致，請以程式碼目前行為為準，並盡快補上文件同步。
