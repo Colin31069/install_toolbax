@@ -19,13 +19,13 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private AppGroupViewModel? _selectedGroup;
 
+    [ObservableProperty]
+    private AppSectionViewModel? _selectedSection;
+
     partial void OnSelectedGroupChanged(AppGroupViewModel? value)
     {
-        SelectedSectionIndex = 0;
+        SelectedSection = value?.Sections.FirstOrDefault();
     }
-
-    [ObservableProperty]
-    private int _selectedSectionIndex = 0;
 
     [ObservableProperty]
     private ObservableCollection<AppPreset> _presets = new();
@@ -161,5 +161,15 @@ public partial class MainViewModel : ObservableObject
 
         GlobalStatusMessage = "所有選擇的項目處理完畢";
         IsInstalling = false;
+    }
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        var currentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
+        var newTheme = currentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark 
+            ? Wpf.Ui.Appearance.ApplicationTheme.Light 
+            : Wpf.Ui.Appearance.ApplicationTheme.Dark;
+        Wpf.Ui.Appearance.ApplicationThemeManager.Apply(newTheme);
     }
 }

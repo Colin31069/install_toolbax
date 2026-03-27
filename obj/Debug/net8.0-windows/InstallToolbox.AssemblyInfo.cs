@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InstallToolbox")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c0d388c5a57d6f9cdf548d591be384da0bdce22")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+592058aba8adad58dd1b9d07a035a35a4ce521d2")]
 [assembly: System.Reflection.AssemblyProductAttribute("InstallToolbox")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InstallToolbox")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

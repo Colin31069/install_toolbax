@@ -49,6 +49,10 @@
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.4.2, )"
+            },
+            "WPF-UI": {
+              "target": "Package",
+              "version": "[4.2.0, )"
             }
           },
           "imports": [
