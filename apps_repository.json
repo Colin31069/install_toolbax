@@ -1,16 +1,12 @@
 {
-  "Version": "1.0",
-  "Categories": [
-    "預設環境",
-    "開發工具",
-    "系統工具"
-  ],
+  "Version": "2.0",
   "Apps": [
     {
       "Id": "Microsoft.DotNet.DesktopRuntime.8",
       "Name": ".NET 8 Desktop Runtime",
       "Category": "預設環境",
       "Description": "許多現代 Windows 應用程式的執行平台。",
+      "IconPath": "/Assets/Icons/dotnet.png",
       "SourceType": "Winget",
       "Source": "Microsoft.DotNet.DesktopRuntime.8",
       "InstallerType": "Winget",
@@ -27,6 +23,7 @@
       "Name": "Notepad++",
       "Category": "開發工具",
       "Description": "輕量級的程式碼編輯器。",
+      "IconPath": "/Assets/Icons/notepad.png",
       "SourceType": "Winget",
       "Source": "Notepad++.Notepad++",
       "InstallerType": "Winget",
@@ -40,7 +37,8 @@
       "Id": "Git.Git",
       "Name": "Git for Windows",
       "Category": "開發工具",
-      "Description": "版本控制系統。",
+      "Description": "版本控制系統工具。",
+      "IconPath": "/Assets/Icons/git.png",
       "SourceType": "Winget",
       "Source": "Git.Git",
       "InstallerType": "Winget",
@@ -55,6 +53,7 @@
       "Name": "7-Zip",
       "Category": "系統工具",
       "Description": "高壓縮比的免費開源解壓縮工具。",
+      "IconPath": "/Assets/Icons/7zip.png",
       "SourceType": "Winget",
       "Source": "7zip.7zip",
       "InstallerType": "Winget",
@@ -63,6 +62,148 @@
         "Type": "Winget",
         "Value": "7zip.7zip"
       }
+    },
+    {
+      "Id": "Google.Chrome",
+      "Name": "Google Chrome",
+      "Category": "系統工具",
+      "Description": "全球最受歡迎的網頁瀏覽器。",
+      "IconPath": "/Assets/Icons/chrome.png",
+      "SourceType": "Winget",
+      "Source": "Google.Chrome",
+      "InstallerType": "Winget",
+      "RequiresAdmin": true,
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "Google.Chrome"
+      }
+    },
+    {
+      "Id": "Microsoft.VisualStudioCode",
+      "Name": "Visual Studio Code",
+      "Category": "開發工具",
+      "Description": "現代化輕量級程式碼編輯器。",
+      "IconPath": "/Assets/Icons/vscode.png",
+      "SourceType": "Winget",
+      "Source": "Microsoft.VisualStudioCode",
+      "InstallerType": "Winget",
+      "RequiresAdmin": true,
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "Microsoft.VisualStudioCode"
+      }
+    },
+    {
+      "Id": "Discord.Discord",
+      "Name": "Discord",
+      "Category": "遊戲娛樂",
+      "Description": "廣受歡迎的社群與遊戲語音軟體。",
+      "IconPath": "/Assets/Icons/discord.png",
+      "SourceType": "Winget",
+      "Source": "Discord.Discord",
+      "InstallerType": "Winget",
+      "RequiresAdmin": false,
+      "InstallCheck": {
+        "Type": "Winget",
+        "Value": "Discord.Discord"
+      }
+    }
+  ],
+  "Groups": [
+    {
+      "Id": "new-pc",
+      "Name": "新電腦必裝",
+      "Description": "重灌後常見的必裝工具",
+      "Sections": [
+        {
+          "Id": "browser",
+          "Name": "瀏覽器",
+          "Description": "常見瀏覽器",
+          "AppIds": [
+            "Google.Chrome"
+          ]
+        },
+        {
+          "Id": "system-utility",
+          "Name": "系統工具",
+          "Description": "系統與解壓縮工具",
+          "AppIds": [
+            "7zip.7zip",
+            "Microsoft.DotNet.DesktopRuntime.8"
+          ]
+        },
+        {
+          "Id": "daily",
+          "Name": "通訊 / 日常",
+          "Description": "聊天與常用日常工具",
+          "AppIds": [
+            "Discord.Discord"
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "dev",
+      "Name": "寫程式",
+      "Description": "與開發環境相關的工具",
+      "Sections": [
+        {
+          "Id": "ide",
+          "Name": "編輯器與 IDE",
+          "Description": "程式碼編輯器",
+          "AppIds": [
+            "Microsoft.VisualStudioCode",
+            "NotepadPlusPlus"
+          ]
+        },
+        {
+          "Id": "tooling",
+          "Name": "開發工具",
+          "Description": "版本控制與其他工具",
+          "AppIds": [
+            "Git.Git"
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "gaming",
+      "Name": "打電動",
+      "Description": "遊戲工具與通訊",
+      "Sections": [
+        {
+          "Id": "social",
+          "Name": "社群語音",
+          "Description": "遊戲語音",
+          "AppIds": [
+            "Discord.Discord"
+          ]
+        }
+      ]
+    }
+  ],
+  "Presets": [
+    {
+      "Id": "standard-reinstall",
+      "Name": "重灌標準清單",
+      "Description": "常見重灌必裝項目",
+      "AppIds": [
+        "Google.Chrome",
+        "7zip.7zip",
+        "Discord.Discord"
+      ]
+    },
+    {
+      "Id": "dev-kit",
+      "Name": "開發火力包",
+      "Description": "寫網頁與軟體的工具",
+      "AppIds": [
+        "Google.Chrome",
+        "Git.Git",
+        "Microsoft.VisualStudioCode",
+        "NotepadPlusPlus",
+        "Microsoft.DotNet.DesktopRuntime.8"
+      ]
     }
   ]
 }

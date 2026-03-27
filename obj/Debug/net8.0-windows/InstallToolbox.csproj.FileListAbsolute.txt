@@ -22,3 +22,4 @@ C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-window
 C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\InstallToolbox.pdb
 C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\InstallToolbox.genruntimeconfig.cache
 C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\ref\InstallToolbox.dll
+C:\Users\Colin_Lin\Documents\Antigravity\install_toolbax\obj\Debug\net8.0-windows\InstallToolbox.sourcelink.json

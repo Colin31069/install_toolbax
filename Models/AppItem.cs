@@ -9,6 +9,7 @@ public partial class AppItem : ObservableObject
     public string Name { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string IconPath { get; set; } = string.Empty;
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public SourceType SourceType { get; set; }

@@ -11,11 +11,24 @@ public partial class MainViewModel : ObservableObject
     private readonly ConfigService _configService;
     private readonly InstallEngine _installEngine;
 
-    [ObservableProperty]
-    private ObservableCollection<AppCategory> _categories = new();
+    private List<AppItem> _allApps = new();
 
     [ObservableProperty]
-    private AppCategory? _selectedCategory;
+    private ObservableCollection<AppGroupViewModel> _groups = new();
+
+    [ObservableProperty]
+    private AppGroupViewModel? _selectedGroup;
+
+    partial void OnSelectedGroupChanged(AppGroupViewModel? value)
+    {
+        SelectedSectionIndex = 0;
+    }
+
+    [ObservableProperty]
+    private int _selectedSectionIndex = 0;
+
+    [ObservableProperty]
+    private ObservableCollection<AppPreset> _presets = new();
 
     [ObservableProperty]
     private string _globalStatusMessage = "就緒";
@@ -43,27 +56,47 @@ public partial class MainViewModel : ObservableObject
             var repo = _configService.LoadConfig();
             if (repo != null)
             {
-                var dict = new Dictionary<string, AppCategory>();
-                foreach (var c in repo.Categories)
-                {
-                    dict[c] = new AppCategory { Name = c };
-                }
-
+                _allApps = repo.Apps;
+                var dict = new Dictionary<string, AppItem>();
                 foreach (var app in repo.Apps)
                 {
-                    if (dict.TryGetValue(app.Category, out var cat))
-                    {
-                        cat.Apps.Add(app);
-                    }
+                    dict[app.Id] = app;
                 }
 
-                foreach (var cat in dict.Values)
+                // Append "All Apps" group
+                var allAppsGroup = new AppGroupViewModel { Id = "all-apps", Name = "所有程式", Description = "所有支援的軟體清單" };
+                var allAppsSection = new AppSectionViewModel { Id = "all-apps-section", Name = "所有程式清單", Description = "不分類顯示所有軟體" };
+                foreach (var app in repo.Apps)
                 {
-                    if (cat.Apps.Count > 0)
-                        Categories.Add(cat);
+                    allAppsSection.Apps.Add(app);
+                }
+                allAppsGroup.Sections.Add(allAppsSection);
+                Groups.Add(allAppsGroup);
+
+                foreach (var g in repo.Groups)
+                {
+                    var groupVm = new AppGroupViewModel { Id = g.Id, Name = g.Name, Description = g.Description };
+                    foreach (var s in g.Sections)
+                    {
+                        var sectionVm = new AppSectionViewModel { Id = s.Id, Name = s.Name, Description = s.Description };
+                        foreach (var id in s.AppIds)
+                        {
+                            if (dict.TryGetValue(id, out var appItem))
+                            {
+                                sectionVm.Apps.Add(appItem);
+                            }
+                        }
+                        groupVm.Sections.Add(sectionVm);
+                    }
+                    Groups.Add(groupVm);
                 }
 
-                SelectedCategory = Categories.FirstOrDefault();
+                foreach (var p in repo.Presets)
+                {
+                    Presets.Add(p);
+                }
+
+                SelectedGroup = Groups.FirstOrDefault();
             }
         }
         catch (Exception ex)
@@ -73,11 +106,26 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ApplyPreset(AppPreset? preset)
+    {
+        if (preset == null) return;
+
+        foreach (var id in preset.AppIds)
+        {
+            var app = _allApps.FirstOrDefault(a => a.Id == id);
+            if (app != null)
+            {
+                app.IsSelected = true;
+            }
+        }
+    }
+
+    [RelayCommand]
     private async Task StartBatchInstallAsync()
     {
         if (IsInstalling) return;
 
-        var selectedApps = Categories.SelectMany(c => c.Apps).Where(a => a.IsSelected && (a.Status == AppStatus.Pending || a.Status == AppStatus.Failed)).ToList();
+        var selectedApps = _allApps.Where(a => a.IsSelected && (a.Status == AppStatus.Pending || a.Status == AppStatus.Failed)).ToList();
 
         if (selectedApps.Count == 0)
         {
@@ -92,7 +140,6 @@ public partial class MainViewModel : ObservableObject
         int total = selectedApps.Count;
         int completed = 0;
 
-        // MVP 先以循序方式安裝 (未處理完整的 DAG 拓樸解析，僅單純依照勾選清單安裝)
         foreach (var app in selectedApps)
         {
             GlobalStatusMessage = $"正在處理: {app.Name}";
