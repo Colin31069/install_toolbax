@@ -136,7 +136,12 @@ public class InstallEngine
 
     private async Task<bool> HandlePortableDeploymentAsync(AppItem app, Action<int> onProgress)
     {
-        string portableToolBaseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Tools", "Portable");
+        var settingsService = new SettingsService();
+        var settings = settingsService.LoadSettings();
+        string portableToolBaseDir = string.IsNullOrWhiteSpace(settings.PortableInstallRoot) 
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Tools", "Portable")
+            : Environment.ExpandEnvironmentVariables(settings.PortableInstallRoot);
+
         if (!Directory.Exists(portableToolBaseDir))
             Directory.CreateDirectory(portableToolBaseDir);
 

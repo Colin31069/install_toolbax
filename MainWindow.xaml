@@ -6,6 +6,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:viewmodels="clr-namespace:InstallToolbox.ViewModels"
         xmlns:models="clr-namespace:InstallToolbox.Models"
+        xmlns:converters="clr-namespace:InstallToolbox.Converters"
         mc:Ignorable="d"
         Title="Windows 軟體安裝管理工具" Height="650" Width="950" 
         WindowStartupLocation="CenterScreen"
@@ -30,6 +31,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <converters:IconResolverConverter x:Key="IconResolver"/>
     </ui:FluentWindow.Resources>
 
     <!-- 主容器 -->
@@ -44,6 +46,9 @@
 
         <!-- 介面內容區 -->
         <Grid>
+            <Grid.LayoutTransform>
+                <ScaleTransform ScaleX="{Binding UiScaleRate}" ScaleY="{Binding UiScaleRate}"/>
+            </Grid.LayoutTransform>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="260"/>
                 <ColumnDefinition Width="*"/>
@@ -137,7 +142,7 @@
                                       HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                       HorizontalGridLinesBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
                                       BorderThickness="0"
-                                      Background="Transparent" RowBackground="Transparent" RowHeight="50">
+                                      Background="Transparent" RowBackground="Transparent" RowHeight="{Binding DataContext.ListDensityLineHeight, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <DataGrid.Columns>
                                 <!-- 勾選框 -->
                                 <DataGridTemplateColumn Width="64">
@@ -156,7 +161,7 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="5">
-                                                <Image Source="{Binding IconPath, TargetNullValue='', FallbackValue=''}" Width="32" Height="32" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                <Image Source="{Binding IconPath, Converter={StaticResource IconResolver}}" Width="32" Height="32" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                                                 <StackPanel VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
                                                     <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap"/>

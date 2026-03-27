@@ -3,6 +3,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InstallToolbox.Models;
 using InstallToolbox.Services;
+using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace InstallToolbox.ViewModels;
 
@@ -10,6 +14,8 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly ConfigService _configService;
     private readonly InstallEngine _installEngine;
+    private readonly SettingsService _settingsService;
+    private UserSettings _currentSettings;
 
     [ObservableProperty]
     private string _themeIcon = "WeatherMoon24";
@@ -25,9 +31,30 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private AppSectionViewModel? _selectedSection;
 
+    [ObservableProperty]
+    private double _uiScaleRate = 1.0;
+
+    [ObservableProperty]
+    private double _listDensityLineHeight = 50.0;
+
     partial void OnSelectedGroupChanged(AppGroupViewModel? value)
     {
         SelectedSection = value?.Sections.FirstOrDefault();
+        
+        if (_currentSettings != null && _currentSettings.RememberLastNavigation && value != null)
+        {
+            _currentSettings.LastSelectedGroupId = value.Id;
+            _settingsService.SaveSettings(_currentSettings);
+        }
+    }
+
+    partial void OnSelectedSectionChanged(AppSectionViewModel? value)
+    {
+        if (_currentSettings != null && _currentSettings.RememberLastNavigation && value != null)
+        {
+            _currentSettings.LastSelectedSectionId = value.Id;
+            _settingsService.SaveSettings(_currentSettings);
+        }
     }
 
     [ObservableProperty]
@@ -48,8 +75,64 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         _configService = new ConfigService();
+        _settingsService = new SettingsService();
+        _currentSettings = _settingsService.LoadSettings();
         _installEngine = new InstallEngine();
+        
+        ApplyUserSettings();
         LoadData();
+        RestoreNavigation();
+    }
+
+    private void ApplyUserSettings()
+    {
+        var currentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
+        Wpf.Ui.Appearance.ApplicationTheme targetTheme = currentTheme;
+
+        if (_currentSettings.ThemeMode == ThemeMode.System)
+        {
+            var systemTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetSystemTheme();
+            targetTheme = systemTheme == Wpf.Ui.Appearance.SystemTheme.Dark 
+                ? Wpf.Ui.Appearance.ApplicationTheme.Dark 
+                : Wpf.Ui.Appearance.ApplicationTheme.Light;
+        }
+        else if (_currentSettings.ThemeMode == ThemeMode.Light)
+            targetTheme = Wpf.Ui.Appearance.ApplicationTheme.Light;
+        else if (_currentSettings.ThemeMode == ThemeMode.Dark)
+            targetTheme = Wpf.Ui.Appearance.ApplicationTheme.Dark;
+
+        Wpf.Ui.Appearance.ApplicationThemeManager.Apply(targetTheme);
+        ThemeIcon = targetTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSunny24" : "WeatherMoon24";
+
+        UiScaleRate = _currentSettings.UiScalePreset switch
+        {
+            UiScalePreset.Small => 0.85,
+            UiScalePreset.Large => 1.25,
+            _ => 1.0
+        };
+
+        ListDensityLineHeight = _currentSettings.ListDensity switch
+        {
+            ListDensity.Compact => 40.0,
+            ListDensity.Comfortable => 60.0,
+            _ => 50.0
+        };
+    }
+
+    private void RestoreNavigation()
+    {
+        if (!_currentSettings.RememberLastNavigation) return;
+
+        var targetGroup = Groups.FirstOrDefault(g => g.Id == _currentSettings.LastSelectedGroupId);
+        if (targetGroup != null)
+        {
+            SelectedGroup = targetGroup;
+            var targetSection = targetGroup.Sections.FirstOrDefault(s => s.Id == _currentSettings.LastSelectedSectionId);
+            if (targetSection != null)
+            {
+                SelectedSection = targetSection;
+            }
+        }
     }
 
     private void LoadData()
@@ -69,7 +152,6 @@ public partial class MainViewModel : ObservableObject
                 Groups.Clear();
                 Presets.Clear();
 
-                // Append "All Apps" group
                 var allAppsGroup = new AppGroupViewModel { Id = "all-apps", Name = "所有程式", Description = "所有支援的軟體清單" };
                 var allAppsSection = new AppSectionViewModel { Id = "all-apps-section", Name = "所有程式清單", Description = "不分類顯示所有軟體" };
                 foreach (var app in repo.Apps)
@@ -102,7 +184,10 @@ public partial class MainViewModel : ObservableObject
                     Presets.Add(p);
                 }
 
-                SelectedGroup = Groups.FirstOrDefault();
+                if (SelectedGroup == null || !Groups.Contains(SelectedGroup))
+                {
+                    SelectedGroup = Groups.FirstOrDefault();
+                }
             }
         }
         catch (Exception ex)
@@ -167,22 +252,36 @@ public partial class MainViewModel : ObservableObject
 
         GlobalStatusMessage = "所有選擇的項目處理完畢";
         IsInstalling = false;
+
+        if (_currentSettings.PostInstallSelectionBehavior == PostInstallSelectionBehavior.ClearSucceeded)
+        {
+            foreach (var app in selectedApps.Where(a => a.Status == AppStatus.Success || a.Status == AppStatus.Skipped))
+            {
+                 app.IsSelected = false;
+            }
+        }
+        else if (_currentSettings.PostInstallSelectionBehavior == PostInstallSelectionBehavior.ClearAll)
+        {
+            foreach (var app in selectedApps)
+            {
+                 app.IsSelected = false;
+            }
+        }
     }
 
     [RelayCommand]
     private void ToggleTheme()
     {
-        System.Diagnostics.Debug.WriteLine("[Theme] ToggleThemeCommand called!");
         var currentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
         var newTheme = currentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark 
             ? Wpf.Ui.Appearance.ApplicationTheme.Light 
             : Wpf.Ui.Appearance.ApplicationTheme.Dark;
         
-        System.Diagnostics.Debug.WriteLine($"[Theme] Changing from {currentTheme} to {newTheme}");
         Wpf.Ui.Appearance.ApplicationThemeManager.Apply(newTheme);
-
         ThemeIcon = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSunny24" : "WeatherMoon24";
-        System.Diagnostics.Debug.WriteLine($"[Theme] Finished toggling theme. New Icon is {ThemeIcon}");
+        
+        _currentSettings.ThemeMode = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? ThemeMode.Dark : ThemeMode.Light;
+        _settingsService.SaveSettings(_currentSettings);
     }
 
     [RelayCommand]
@@ -194,7 +293,8 @@ public partial class MainViewModel : ObservableObject
         };
         settingsWindow.ShowDialog();
         
-        // 重載設定檔重新刷新畫面
+        _currentSettings = _settingsService.LoadSettings();
+        ApplyUserSettings();
         LoadData();
     }
 }

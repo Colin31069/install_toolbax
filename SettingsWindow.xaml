@@ -5,12 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:viewmodels="clr-namespace:InstallToolbox.ViewModels"
+        xmlns:converters="clr-namespace:InstallToolbox.Converters"
         mc:Ignorable="d"
         Title="設定" Height="680" Width="600"
         WindowStartupLocation="CenterOwner"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
         ExtendsContentIntoTitleBar="True">
+    
+    <ui:FluentWindow.Resources>
+        <converters:IconResolverConverter x:Key="IconResolver"/>
+    </ui:FluentWindow.Resources>
     
     <ui:FluentWindow.DataContext>
         <viewmodels:SettingsViewModel />
@@ -28,6 +33,19 @@
             <TabItem Header="新增應用程式">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,15,10">
                     <StackPanel>
+                        <!-- 圖示設定 -->
+                        <TextBlock Text="圖示設定" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                            <Image Source="{Binding SelectedIconFilePath, Converter={StaticResource IconResolver}}" Width="48" Height="48" Margin="0,0,15,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                    <ui:Button Content="瀏覽圖示" Command="{Binding BrowseIconCommand}" Margin="0,0,10,0"/>
+                                    <ui:Button Content="重設為預設" Command="{Binding ResetIconCommand}" Appearance="Secondary"/>
+                                </StackPanel>
+                                <TextBlock Text="支援格式：png, jpg, jpeg, ico" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+
                         <!-- 基本設定 -->
                         <TextBlock Text="基本設定" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                         <ui:TextBox PlaceholderText="輸入 App Id (必填，不可重複)" Text="{Binding AppId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10"/>
@@ -81,8 +99,38 @@
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="一般設定">
-                <TextBlock Text="預留之一般設定區域" Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,15,10">
+                    <StackPanel>
+                        <TextBlock Text="外觀設定" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="應用程式主題: " VerticalAlignment="Center" Margin="0,0,10,0" Width="150"/>
+                            <ComboBox ItemsSource="{Binding ThemeModes}" SelectedItem="{Binding SelectedThemeMode}" Width="150"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="UI 縮放大小: " VerticalAlignment="Center" Margin="0,0,10,0" Width="150"/>
+                            <ComboBox ItemsSource="{Binding UiScalePresets}" SelectedItem="{Binding SelectedUiScalePreset}" Width="150"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <TextBlock Text="清單版面密度: " VerticalAlignment="Center" Margin="0,0,10,0" Width="150"/>
+                            <ComboBox ItemsSource="{Binding ListDensities}" SelectedItem="{Binding SelectedListDensity}" Width="150"/>
+                        </StackPanel>
+
+                        <TextBlock Text="安裝與行為" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                        <TextBlock Text="免安裝程式存放根目錄 (留空則使用預設 %UserProfile%\Tools\Portable): " VerticalAlignment="Center" Margin="0,0,0,5"/>
+                        <ui:TextBox Text="{Binding PortableInstallRoot}" PlaceholderText="C:\Tools\Portable" Margin="0,0,0,10"/>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="安裝完成後清單行為: " VerticalAlignment="Center" Margin="0,0,10,0" Width="150"/>
+                            <ComboBox ItemsSource="{Binding PostInstallBehaviors}" SelectedItem="{Binding SelectedPostInstallBehavior}" Width="150"/>
+                        </StackPanel>
+                        
+                        <CheckBox Content="啟動時記住並恢復上次瀏覽的分類" IsChecked="{Binding RememberLastNavigation}" Margin="0,0,0,20"/>
+
+                        <ui:Button Content="儲存設定" Appearance="Primary" Command="{Binding SaveSettingsCommand}" 
+                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" 
+                                   Margin="0,20,0,0" Width="120" HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
     </Grid>

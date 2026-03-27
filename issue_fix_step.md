@@ -2,293 +2,284 @@
 
 This file contains only the current round of instructions for the AI agent.
 
-Current goals:
+## Goal
 
-1. Add an in-app way to create new app entries so users do not have to edit `apps_repository.json` manually.
-2. Add a small settings gear icon to the left of the theme toggle button and hide the app-creation feature inside Settings.
-3. Fix the current bug where the theme toggle icon disappears after switching to dark theme.
-4. After making changes, append a summary to `modification_log.md`.
+Add in-app management for apps that already exist in the repository.
 
-## 1. Add a Settings entry point
+Users can already create new app entries, but they still have to open `apps_repository.json` manually if they want to:
 
-### Requirement
+- change an existing app
+- replace or add an icon for an existing app
+- remove an app that is no longer needed
 
-The new app-creation workflow must not be exposed directly in the main app list area.
+This round must remove that dependency on manual JSON editing.
 
-It should be hidden behind a Settings entry point:
+## Fixed Product Decisions
 
-- add a small gear icon button
-- place it immediately to the left of the theme toggle button
-- keep both buttons in the same top-right action area
+- Do not require users to edit `apps_repository.json` manually for normal maintenance.
+- Keep app management inside Settings.
+- Add UI support for editing existing apps.
+- Add UI support for deleting existing apps.
+- Existing app icon changes must use the same managed icon approach as the Add App flow.
+- Deleting an app must also clean up references to that app in groups, sections, and presets.
+- Prefer a safe, explicit workflow over a fast but risky one.
 
-### UI requirement
+## Scope
 
-Current layout already has a top-right action button inside the presets card area.
+### In scope
 
-For this round:
+- browse and select an existing app
+- load the selected app into an editable form
+- modify existing app fields
+- change or reset the icon of an existing app
+- save changes back to `apps_repository.json`
+- delete an existing app with confirmation
+- remove all references to the deleted app from the repository structure
+- refresh the UI after edit or delete
 
-- keep the theme toggle on the far right
-- add the settings gear button immediately to its left
-- make both buttons visually consistent
-- ensure both buttons remain fully clickable in both light and dark themes
+### Out of scope
 
-### Recommended implementation
+- bulk edit
+- multi-select delete
+- undo history
+- automatic icon scraping
+- a separate admin window outside Settings
 
-Do not overbuild this.
+## Required UX
 
-A first version is acceptable as either:
+### 1. Add an Existing Apps management surface in Settings
 
-- a modal settings dialog
-- a flyout / content dialog
-- a dedicated settings panel opened from the gear button
+Settings must include a dedicated management area for existing apps.
 
-Prefer the simplest stable implementation that fits the current codebase.
+A simple recommended layout is:
 
-## 2. Add an in-app "Add App" editor
+- `Add App`
+- `Manage Existing Apps`
+- `General`
 
-### Problem to solve
+The new management area must include:
 
-Users should not have to open `apps_repository.json`, understand the schema manually, and risk breaking JSON formatting or structure.
+- a list, combo box, or searchable selector for existing apps
+- a form that loads the selected app's current values
+- a save action for updates
+- a delete action for removal
 
-The app should provide a guided form-based workflow for creating new app entries safely.
+The user must not need to open raw JSON for normal edit or delete tasks.
 
-### Scope for this round
+### 2. Reuse the same field model as much as possible
 
-The required minimum is:
+The edit form should reuse the same field structure already used for Add App wherever practical.
 
-- a form in Settings that allows creating a new app entry
-- validation before saving
-- safe write-back to `apps_repository.json`
-- UI refresh after save so the newly added app becomes visible without manual JSON editing
-
-This round does not need a full "edit every existing app" administration suite unless it comes naturally from the implementation.
-
-Focus on safe app creation first.
-
-## 3. Required app-creation workflow
-
-### UX goal
-
-The common case should be easy:
-
-- add a normal Winget app
-- assign a name
-- choose where it should appear
-- save safely
-
-Do not force users to deal with every low-level JSON detail up front.
-
-### Recommended form structure
-
-Create a form with two levels:
-
-#### Basic fields
+At minimum, the existing app editor must support:
 
 - `Id`
 - `Name`
 - `Description`
-- `IconPath` (optional in first version)
+- `IconPath` through managed icon controls
 - `SourceType`
 - `Source`
 - `InstallerType`
 - `RequiresAdmin`
-
-#### Placement fields
-
-- allow selecting one or more existing group sections
-- or at minimum allow choosing whether the app should only appear in `All Apps`
-
-Important:
-
-- if the app is added only to `Apps`, it will still appear in `All Apps`
-- but users should ideally be able to place it into existing groups/sections without editing JSON manually
-
-#### Advanced section
-
-Hide advanced fields behind an expandable "Advanced" section:
-
 - `DeploymentType`
 - `InstallArgs`
-- `Dependencies`
-- `RetryCount`
-- `InstallCheck`
-- `PortableTargetFolder`
-- `PortableEntryRelativePath`
-- `PortableExtractSubfolder`
 
-This keeps the common Winget path simple while still supporting future portable scenarios.
+If the current codebase already has additional supported fields in the model, the edit flow should preserve them and avoid silently dropping them.
 
-## 4. Save and validation requirements
+### 3. Existing app icon management
 
-### Current limitation
+The edit flow must support icon updates for apps that are already in the repository.
 
-`ConfigService` currently loads configuration but does not provide a safe save workflow.
+Required behavior:
 
-This round must add save support.
+- show the current icon preview
+- allow browsing for a replacement icon
+- allow resetting the icon to the default fallback icon
+- use the same accepted file types as the Add App flow:
+  - `.png`
+  - `.jpg`
+  - `.jpeg`
+  - `.ico`
+- use the same managed icon storage rules as Add App:
+  - copy user-selected icons into `UserAssets/Icons/`
+  - persist only the managed relative path
+  - do not persist the original external absolute path
 
-### Required validation
+If the edited app already uses a managed icon and the user replaces it, the managed icon file should be overwritten or replaced safely.
 
-Before saving:
+## Required Edit Behavior
 
-- `Id` must not be empty
-- `Name` must not be empty
-- `Source` must not be empty
-- `Id` must be unique across `Apps`
-- selected enum values must be valid
-- if `DeploymentType == Portable`, required portable fields must be validated
-- if `InstallCheck.Type == Path`, the path value must not be empty
+### 4. Loading an existing app
 
-### Required save behavior
+When the user selects an existing app:
 
-Do not write JSON unsafely.
+- load the app's current values into the edit form
+- populate icon preview from the current persisted icon path
+- load the app's current group and section memberships
+- keep the original app id available internally for reference updates
 
-Use a safe save strategy:
+The UI must make it clear that the user is editing an existing record, not creating a new one.
 
-1. load current repository
-2. add the new app entry to `Apps`
-3. update selected group sections by adding the new `AppId`
-4. serialize using the same repository model
-5. write to a temporary file first
-6. keep a backup of the previous JSON if practical
-7. replace the main file only after successful serialization
+### 5. Saving edits
 
-### Encoding and formatting
+The save flow for existing apps must update the repository entry instead of appending a new one.
 
-Save the repository in UTF-8 and keep JSON formatting readable.
+Required behavior:
 
-The app should reduce the chance of invalid manual edits, not introduce a new way to corrupt the file.
+1. load the current repository
+2. identify the selected existing app by its original id
+3. validate edited values
+4. update the matching app record
+5. update group/section references if needed
+6. update preset references if needed
+7. save the repository safely
+8. refresh the UI so changes appear immediately
 
-## 5. Refresh behavior after save
+### 6. Editing the app id
 
-After the user saves a new app:
+Editing `Id` is allowed in this round.
 
-- the app should appear immediately in the UI
-- `All Apps` must show it
-- any selected group/section placements must show it too
-- the user should not need to restart the application
+If the app id changes:
 
-Recommended approach:
+- the new id must still be unique across all apps
+- every matching id reference in every group section must be updated
+- every matching id reference in every preset must be updated
+- if the app has a managed custom icon named from the old id, the managed icon file should be renamed to match the new id when practical
+- if rename is not practical because of the current implementation path, the save flow must still leave the app with a valid icon path and must not break the icon reference
 
-- reload the repository after a successful save
-- rebuild the ViewModel collections cleanly
+This is a required consistency rule. No stale old ids may remain in the repository after a successful save.
 
-Do not leave the UI in a stale state after save.
+### 7. Group and section membership editing
 
-## 6. Suggested Settings content for this round
+The edit workflow must allow updating where an existing app appears.
 
-The Settings surface does not need to be large yet.
+Required behavior:
 
-For this round, it is enough to include:
+- show current group/section memberships
+- allow adding memberships
+- allow removing memberships
+- leave `All Apps` implicit as it is today
 
-- `Add App`
-- optional placeholder section for future settings
+Saving must produce the final membership state exactly as selected in the form.
 
-Recommended first layout:
+### 8. Preserve non-edited data safely
 
-- header: `Settings`
-- tab / section 1: `Add App`
-- optional future section: `General`
+If a field is not exposed in the editor UI yet, the save flow must not accidentally erase or reinitialize it.
 
-The main goal is to hide the advanced management feature behind Settings while still keeping it usable.
+The agent must be careful not to overwrite supported repository data with defaults unless the user explicitly changed that field.
 
-## 7. Fix the dark-theme icon disappearance bug
+## Required Delete Behavior
 
-### Current confirmed behavior
+### 9. Delete an existing app safely
 
-Theme switching appears to work now because the app can enter dark mode.
+The management UI must provide a delete action for the currently selected existing app.
 
-However, after switching to dark mode:
+Delete must require explicit confirmation.
 
-- the theme toggle button is still present
-- but the icon becomes invisible / blank
+The confirmation should clearly warn that the action will:
 
-This is no longer a "button does not work" problem.
-It is now an icon rendering / icon-state problem.
+- remove the app from the main app catalog
+- remove the app from all group sections
+- remove the app from all presets
 
-### Most likely causes
+### 10. Delete cleanup rules
 
-The strongest current suspects are:
+When an app is deleted:
 
-1. The dark-theme icon symbol name is invalid for the installed WPF-UI / Fluent symbol set.
-2. The icon foreground is not explicitly bound to a theme-safe brush, so it blends into the button background in dark mode.
+- remove the app record from `Apps`
+- remove its id from every `Group -> Section -> AppIds`
+- remove its id from every `Preset -> AppIds`
 
-Current code uses a string-based symbol binding and sets the dark-theme icon to:
+If the app uses a managed custom icon under `UserAssets/Icons/`:
 
-- `WeatherSun24`
+- delete that managed icon file if it belongs only to the deleted app
+- do not delete built-in assets under `/Assets/Icons/`
 
-That must be verified, not assumed.
+The delete flow must not leave dangling references in the repository.
 
-An empty icon after theme switch strongly suggests one of these:
+## Validation Rules
 
-- the symbol token does not exist
-- the symbol binding fails silently
-- the icon color becomes unreadable in dark mode
+- an edited app cannot be saved with an empty `Id`
+- an edited app cannot be saved with an empty `Name`
+- an edited app cannot be saved with an empty `Source`
+- the edited `Id` must be unique across all apps except the currently edited record
+- if a custom icon is selected, only allowed file extensions may be accepted
+- if icon copy or replacement fails, do not persist a broken icon path
+- deleting an app must require user confirmation
 
-### Required fix sequence
+## Data and Save Safety
 
-#### Step 1: Verify the symbol name
+- keep using `apps_repository.json` as the single source of truth for app catalog data
+- do not introduce a second catalog file
+- save in UTF-8
+- keep readable JSON formatting
+- create or keep a backup before replacing the main repository file if the current implementation already supports that pattern
+- do not partially save only part of the repository structure
 
-Do not assume `WeatherSun24` is valid.
+The repository update must be treated as one logical operation.
 
-Confirm that the selected icon token actually exists in the installed WPF-UI symbol set.
+## UI Refresh Requirements
 
-If it does not exist:
+After a successful edit:
 
-- replace it with a confirmed valid sun/day icon token
-- keep the moon icon for light mode if that token is already working
+- the updated app must appear immediately in the main UI
+- the updated icon must appear immediately if it changed
+- updated group/section placement must appear immediately
+- updated preset targeting must be reflected immediately
 
-#### Step 2: Make the icon visible in both themes
+After a successful delete:
 
-Set the icon foreground explicitly using a theme-aware dynamic brush.
+- the removed app must disappear immediately from the main UI
+- it must disappear from all affected sections
+- it must no longer be targeted by presets
 
-Do not rely on implicit inheritance if it is unstable.
+The user must not need to restart the application.
 
-The icon must remain visible in:
+## Recommended Implementation Order
 
-- light theme
-- dark theme
-- hover state
-- pressed state
+1. Add the existing app selector and edit mode UI in Settings.
+2. Load selected app data into editable state.
+3. Reuse icon preview and managed icon replacement behavior for existing apps.
+4. Implement safe update logic for existing apps.
+5. Implement id-change propagation across groups, sections, and presets.
+6. Implement delete with confirmation and repository cleanup.
+7. Reload the repository after save or delete and refresh the main UI.
 
-#### Step 3: Keep icon state aligned with theme state
+## Acceptance Tests
 
-After toggling:
+### Edit existing app
 
-- light theme should show the moon icon
-- dark theme should show the sun icon
+1. Select an existing app and change its name. Save and verify the new name appears immediately in the main UI.
+2. Select an existing app and change its icon. Save and verify the new icon appears immediately and still appears after restarting the app.
+3. Select an existing app and reset its icon to the default icon. Save and verify the fallback icon is shown.
+4. Select an existing app and change its source-related fields. Save and verify the repository entry updates instead of creating a duplicate.
 
-The icon must not disappear, lag behind, or show the wrong state.
+### Edit existing app id
 
-### Acceptance criteria for the icon bug
+1. Select an existing app and change its `Id` to a new unique value.
+2. Save and verify the app record uses the new id.
+3. Verify every matching group/section reference now points to the new id.
+4. Verify every matching preset reference now points to the new id.
+5. Verify no old id references remain in the repository after save.
 
-1. The theme toggle icon remains visible after switching to dark theme.
-2. The icon remains visible after switching back to light theme.
-3. The icon state correctly reflects the current theme.
-4. The settings gear icon is also clearly visible in both themes.
+### Delete existing app
 
-## 8. Recommended implementation order
+1. Select an existing app and trigger delete.
+2. Confirm the delete action.
+3. Verify the app is removed from `Apps`.
+4. Verify the app id is removed from all sections.
+5. Verify the app id is removed from all presets.
+6. Verify the app no longer appears in the UI without restarting.
 
-1. Add the settings gear button to the left of the theme toggle.
-2. Fix the dark-theme icon disappearance bug first, because both top-right icons must remain visible.
-3. Add a simple Settings surface.
-4. Implement the in-app Add App form.
-5. Add safe JSON save support in `ConfigService`.
-6. Reload the repository after save and refresh the UI.
-7. Append the implementation summary to `modification_log.md`.
+### Validation and safety
 
-## 9. Acceptance criteria for this round
+1. Try to save an edit with an empty `Name` and verify validation blocks the save.
+2. Try to save an edit with a duplicate `Id` and verify validation blocks the save.
+3. Try to delete an app and cancel the confirmation dialog; verify nothing changes.
+4. Verify built-in icon assets are never deleted during app deletion.
 
-### Settings and app creation
+## Non-goals for this round
 
-1. A settings gear icon exists to the left of the theme toggle.
-2. Clicking the gear opens a Settings UI.
-3. The Settings UI includes an `Add App` workflow.
-4. Users can add a normal app without editing raw JSON manually.
-5. Validation prevents broken or incomplete entries from being saved.
-6. The new app appears in the UI immediately after save.
-
-### Theme / icon behavior
-
-1. The theme toggle still works.
-2. The theme icon no longer disappears in dark mode.
-3. The gear icon and theme icon are both readable in light and dark themes.
+- Do not build a full power-user admin console.
+- Do not add batch operations.
+- Do not introduce direct JSON editing into the UI.
+- Do not require the user to understand repository internals for ordinary maintenance.
