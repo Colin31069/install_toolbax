@@ -3,8 +3,8 @@
   "PortableInstallRoot": "",
   "PostInstallSelectionBehavior": "KeepAll",
   "RememberLastNavigation": true,
-  "LastSelectedGroupId": "all-apps",
-  "LastSelectedSectionId": "all-apps-section",
+  "LastSelectedGroupId": "new-pc",
+  "LastSelectedSectionId": "browser",
   "UiScalePreset": "Medium",
   "ListDensity": "Compact"
 }

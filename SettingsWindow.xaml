@@ -98,6 +98,91 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+            <TabItem Header="管理現有應用程式">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,15,10">
+                    <StackPanel>
+                        <!-- 選擇應用程式 -->
+                        <TextBlock Text="選擇現有應用程式" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                        <ComboBox ItemsSource="{Binding ExistingApps}" SelectedItem="{Binding SelectedExistingApp}" DisplayMemberPath="Name" Margin="0,0,0,15" HorizontalAlignment="Stretch"/>
+
+                        <StackPanel>
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedExistingApp}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            
+                            <!-- 圖示設定 -->
+                            <TextBlock Text="圖示設定" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <Image Source="{Binding EditSelectedIconFilePath, Converter={StaticResource IconResolver}}" Width="48" Height="48" Margin="0,0,15,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                        <ui:Button Content="瀏覽圖示" Command="{Binding BrowseEditIconCommand}" Margin="0,0,10,0"/>
+                                        <ui:Button Content="重設為預設" Command="{Binding ResetEditIconCommand}" Appearance="Secondary"/>
+                                    </StackPanel>
+                                    <TextBlock Text="支援格式：png, jpg, jpeg, ico" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 基本設定 -->
+                            <TextBlock Text="基本設定" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                            <ui:TextBox Text="{Binding EditAppId, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="輸入 App Id (必填，不可重複)" Margin="0,0,0,10"/>
+                            <ui:TextBox Text="{Binding EditAppName, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="輸入名稱 Name (必填)" Margin="0,0,0,10"/>
+                            <ui:TextBox Text="{Binding EditAppDescription, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="輸入描述 Description" Margin="0,0,0,10"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="來源類型: " VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <ComboBox ItemsSource="{Binding SourceTypes}" SelectedItem="{Binding EditSelectedSourceType}" Width="150"/>
+                            </StackPanel>
+                            <ui:TextBox Text="{Binding EditSource, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="輸入來源 Source (必填)" Margin="0,0,0,10"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="安裝檔類型: " VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <ComboBox ItemsSource="{Binding InstallerTypes}" SelectedItem="{Binding EditSelectedInstallerType}" Width="150"/>
+                                <CheckBox Content="需要管理員權限" IsChecked="{Binding EditRequiresAdmin}" Margin="20,0,0,0"/>
+                            </StackPanel>
+
+                            <!-- 安裝分類 -->
+                            <TextBlock Text="選擇分類擺放 (可複選)" FontWeight="Bold" FontSize="16" Margin="0,15,0,10"/>
+                            <ItemsControl ItemsSource="{Binding EditGroupSelections}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,0,5">
+                                            <TextBlock>
+                                                <Run Text="{Binding GroupName}"/>
+                                                <Run Text=" > "/>
+                                                <Run Text="{Binding SectionName}"/>
+                                            </TextBlock>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- 進階設定區域 -->
+                            <Expander Header="進階設定" Margin="0,15,0,10">
+                                <StackPanel Margin="10">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <TextBlock Text="部署類型: " VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <ComboBox ItemsSource="{Binding DeploymentTypes}" SelectedItem="{Binding EditSelectedDeploymentType}" Width="150"/>
+                                    </StackPanel>
+                                    <ui:TextBox Text="{Binding EditInstallArgs, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="安裝參數 InstallArgs" Margin="0,0,0,10"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Grid Margin="0,20,0,0">
+                                <ui:Button Content="刪除應用程式" Appearance="Danger" Command="{Binding DeleteAppCommand}" HorizontalAlignment="Left" Width="120"/>
+                                <ui:Button Content="儲存變更" Appearance="Primary" Command="{Binding SaveEditAppCommand}" HorizontalAlignment="Right" Width="120"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
             <TabItem Header="一般設定">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,15,10">
                     <StackPanel>

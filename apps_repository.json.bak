@@ -1,4 +1,4 @@
-{
+﻿{
   "Version": "2.0",
   "Apps": [
     {
@@ -10,13 +10,23 @@
       "SourceType": "Winget",
       "Source": "Microsoft.DotNet.DesktopRuntime.8",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
       "InstallArgs": "",
       "RequiresAdmin": true,
       "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "Microsoft.DotNet.DesktopRuntime.8"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "NotepadPlusPlus",
@@ -27,11 +37,23 @@
       "SourceType": "Winget",
       "Source": "Notepad++.Notepad++",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
       "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "Notepad++.Notepad++"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "Git.Git",
@@ -42,11 +64,23 @@
       "SourceType": "Winget",
       "Source": "Git.Git",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
       "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "Git.Git"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "7zip.7zip",
@@ -57,11 +91,23 @@
       "SourceType": "Winget",
       "Source": "7zip.7zip",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
       "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "7zip.7zip"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "Google.Chrome",
@@ -72,11 +118,23 @@
       "SourceType": "Winget",
       "Source": "Google.Chrome",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
       "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "Google.Chrome"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "Microsoft.VisualStudioCode",
@@ -87,11 +145,23 @@
       "SourceType": "Winget",
       "Source": "Microsoft.VisualStudioCode",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
       "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "Microsoft.VisualStudioCode"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "Discord.Discord",
@@ -102,91 +172,155 @@
       "SourceType": "Winget",
       "Source": "Discord.Discord",
       "InstallerType": "Winget",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
       "RequiresAdmin": false,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Winget",
         "Value": "Discord.Discord"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "WizTreePortable",
       "Name": "WizTree (免安裝版)",
       "Category": "系統工具",
       "Description": "極速的磁碟空間分析工具。(Portable)",
-      "IconPath": "/Assets/Icons/default.png",
+      "IconPath": "UserAssets/Icons/WizTreePortable.jpg",
       "SourceType": "DirectUrl",
       "Source": "https://diskanalyzer.com/files/wiztree_4_19_portable.zip",
       "InstallerType": "Zip",
       "DeploymentType": "Portable",
       "PortableTargetFolder": "WizTree",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Path",
         "Value": "%UserProfile%\\Tools\\Portable\\WizTree\\WizTree64.exe"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "CrystalDiskInfoPortable",
       "Name": "CrystalDiskInfo (免安裝版)",
       "Category": "系統工具",
       "Description": "硬碟健康狀態與溫度監控軟體。(Portable)",
-      "IconPath": "/Assets/Icons/default.png",
+      "IconPath": "UserAssets/Icons/CrystalDiskInfoPortable.jpg",
       "SourceType": "DirectUrl",
       "Source": "https://gigenet.dl.osdn.jp/crystaldiskinfo/79967/CrystalDiskInfo9_2_3.zip",
       "InstallerType": "Zip",
       "DeploymentType": "Portable",
       "PortableTargetFolder": "CrystalDiskInfo",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Path",
         "Value": "%UserProfile%\\Tools\\Portable\\CrystalDiskInfo\\DiskInfo64.exe"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "ProcessExplorerPortable",
       "Name": "Process Explorer (免安裝版)",
       "Category": "系統工具",
       "Description": "進階的系統效能與程序監控工具。(Portable)",
-      "IconPath": "/Assets/Icons/default.png",
+      "IconPath": "UserAssets/Icons/ProcessExplorerPortable.jpg",
       "SourceType": "DirectUrl",
       "Source": "https://download.sysinternals.com/files/ProcessExplorer.zip",
       "InstallerType": "Zip",
       "DeploymentType": "Portable",
       "PortableTargetFolder": "ProcessExplorer",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Path",
         "Value": "%UserProfile%\\Tools\\Portable\\ProcessExplorer\\procexp.exe"
-      }
-    },
-    {
-      "Id": "SumatraPDFPortable",
-      "Name": "SumatraPDF (免安裝版)",
-      "Category": "辦公軟體",
-      "Description": "輕便且迅速的 PDF 閱讀器。(Portable)",
-      "IconPath": "/Assets/Icons/default.png",
-      "SourceType": "DirectUrl",
-      "Source": "https://www.sumatrapdfreader.org/dl2/SumatraPDF-3.5.2-64.zip",
-      "InstallerType": "Zip",
-      "DeploymentType": "Portable",
-      "PortableTargetFolder": "SumatraPDF",
-      "InstallCheck": {
-        "Type": "Path",
-        "Value": "%UserProfile%\\Tools\\Portable\\SumatraPDF\\SumatraPDF.exe"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     },
     {
       "Id": "PuTTYPortable",
       "Name": "PuTTY (免安裝版)",
       "Category": "網路工具",
       "Description": "熱門的 SSH 與 Telnet 連線客戶端。(Portable)",
-      "IconPath": "/Assets/Icons/default.png",
+      "IconPath": "UserAssets/Icons/PuTTYPortable.png",
       "SourceType": "DirectUrl",
       "Source": "https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe",
       "InstallerType": "Exe",
       "DeploymentType": "Portable",
       "PortableTargetFolder": "PuTTY",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
       "InstallCheck": {
         "Type": "Path",
         "Value": "%UserProfile%\\Tools\\Portable\\PuTTY\\putty.exe"
-      }
+      },
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
+    },
+    {
+      "Id": "Opera.Opera",
+      "Name": "Opera",
+      "Category": "",
+      "Description": "內建免費 VPN、廣告阻擋器、AI (Aria) 及工作區切換功能",
+      "IconPath": "UserAssets/Icons/Opera.Opera.png",
+      "SourceType": "DirectUrl",
+      "Source": "https://www.opera.com/computer/thanks?ni=stable&os=windows",
+      "InstallerType": "Exe",
+      "DeploymentType": "Installed",
+      "PortableTargetFolder": "",
+      "PortableEntryRelativePath": "",
+      "PortableExtractSubfolder": "",
+      "InstallArgs": "",
+      "RequiresAdmin": true,
+      "Dependencies": [],
+      "RetryCount": 2,
+      "InstallCheck": null,
+      "CachePolicy": "DeleteOnSuccess",
+      "Status": "Pending",
+      "Progress": 0,
+      "ErrorMessage": "",
+      "IsSelected": false
     }
   ],
   "Groups": [
@@ -200,7 +334,8 @@
           "Name": "瀏覽器",
           "Description": "常見瀏覽器",
           "AppIds": [
-            "Google.Chrome"
+            "Google.Chrome",
+            "Opera.Opera"
           ]
         },
         {
@@ -280,9 +415,7 @@
           "Id": "pt-documents",
           "Name": "文書與辦公",
           "Description": "常見文件閱覽",
-          "AppIds": [
-            "SumatraPDFPortable"
-          ]
+          "AppIds": []
         },
         {
           "Id": "pt-network",
@@ -323,8 +456,7 @@
       "Name": "輕量免安裝包",
       "Description": "不留痕跡的實用工具包",
       "AppIds": [
-        "WizTreePortable",
-        "SumatraPDFPortable"
+        "WizTreePortable"
       ]
     }
   ]
