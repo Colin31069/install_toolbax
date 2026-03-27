@@ -11,6 +11,9 @@ public partial class MainViewModel : ObservableObject
     private readonly ConfigService _configService;
     private readonly InstallEngine _installEngine;
 
+    [ObservableProperty]
+    private string _themeIcon = "WeatherMoon24";
+
     private List<AppItem> _allApps = new();
 
     [ObservableProperty]
@@ -166,10 +169,16 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ToggleTheme()
     {
+        System.Diagnostics.Debug.WriteLine("[Theme] ToggleThemeCommand called!");
         var currentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
         var newTheme = currentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark 
             ? Wpf.Ui.Appearance.ApplicationTheme.Light 
             : Wpf.Ui.Appearance.ApplicationTheme.Dark;
+        
+        System.Diagnostics.Debug.WriteLine($"[Theme] Changing from {currentTheme} to {newTheme}");
         Wpf.Ui.Appearance.ApplicationThemeManager.Apply(newTheme);
+
+        ThemeIcon = newTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark ? "WeatherSun24" : "WeatherMoon24";
+        System.Diagnostics.Debug.WriteLine($"[Theme] Finished toggling theme. New Icon is {ThemeIcon}");
     }
 }

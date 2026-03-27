@@ -7,6 +7,12 @@ public enum SourceType
     LocalFile
 }
 
+public enum DeploymentType
+{
+    Installed,
+    Portable
+}
+
 public enum InstallerType
 {
     Winget,

@@ -107,6 +107,86 @@
         "Type": "Winget",
         "Value": "Discord.Discord"
       }
+    },
+    {
+      "Id": "WizTreePortable",
+      "Name": "WizTree (免安裝版)",
+      "Category": "系統工具",
+      "Description": "極速的磁碟空間分析工具。(Portable)",
+      "IconPath": "/Assets/Icons/default.png",
+      "SourceType": "DirectUrl",
+      "Source": "https://diskanalyzer.com/files/wiztree_4_19_portable.zip",
+      "InstallerType": "Zip",
+      "DeploymentType": "Portable",
+      "PortableTargetFolder": "WizTree",
+      "InstallCheck": {
+        "Type": "Path",
+        "Value": "%UserProfile%\\Tools\\Portable\\WizTree\\WizTree64.exe"
+      }
+    },
+    {
+      "Id": "CrystalDiskInfoPortable",
+      "Name": "CrystalDiskInfo (免安裝版)",
+      "Category": "系統工具",
+      "Description": "硬碟健康狀態與溫度監控軟體。(Portable)",
+      "IconPath": "/Assets/Icons/default.png",
+      "SourceType": "DirectUrl",
+      "Source": "https://gigenet.dl.osdn.jp/crystaldiskinfo/79967/CrystalDiskInfo9_2_3.zip",
+      "InstallerType": "Zip",
+      "DeploymentType": "Portable",
+      "PortableTargetFolder": "CrystalDiskInfo",
+      "InstallCheck": {
+        "Type": "Path",
+        "Value": "%UserProfile%\\Tools\\Portable\\CrystalDiskInfo\\DiskInfo64.exe"
+      }
+    },
+    {
+      "Id": "ProcessExplorerPortable",
+      "Name": "Process Explorer (免安裝版)",
+      "Category": "系統工具",
+      "Description": "進階的系統效能與程序監控工具。(Portable)",
+      "IconPath": "/Assets/Icons/default.png",
+      "SourceType": "DirectUrl",
+      "Source": "https://download.sysinternals.com/files/ProcessExplorer.zip",
+      "InstallerType": "Zip",
+      "DeploymentType": "Portable",
+      "PortableTargetFolder": "ProcessExplorer",
+      "InstallCheck": {
+        "Type": "Path",
+        "Value": "%UserProfile%\\Tools\\Portable\\ProcessExplorer\\procexp.exe"
+      }
+    },
+    {
+      "Id": "SumatraPDFPortable",
+      "Name": "SumatraPDF (免安裝版)",
+      "Category": "辦公軟體",
+      "Description": "輕便且迅速的 PDF 閱讀器。(Portable)",
+      "IconPath": "/Assets/Icons/default.png",
+      "SourceType": "DirectUrl",
+      "Source": "https://www.sumatrapdfreader.org/dl2/SumatraPDF-3.5.2-64.zip",
+      "InstallerType": "Zip",
+      "DeploymentType": "Portable",
+      "PortableTargetFolder": "SumatraPDF",
+      "InstallCheck": {
+        "Type": "Path",
+        "Value": "%UserProfile%\\Tools\\Portable\\SumatraPDF\\SumatraPDF.exe"
+      }
+    },
+    {
+      "Id": "PuTTYPortable",
+      "Name": "PuTTY (免安裝版)",
+      "Category": "網路工具",
+      "Description": "熱門的 SSH 與 Telnet 連線客戶端。(Portable)",
+      "IconPath": "/Assets/Icons/default.png",
+      "SourceType": "DirectUrl",
+      "Source": "https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe",
+      "InstallerType": "Exe",
+      "DeploymentType": "Portable",
+      "PortableTargetFolder": "PuTTY",
+      "InstallCheck": {
+        "Type": "Path",
+        "Value": "%UserProfile%\\Tools\\Portable\\PuTTY\\putty.exe"
+      }
     }
   ],
   "Groups": [
@@ -180,6 +260,39 @@
           ]
         }
       ]
+    },
+    {
+      "Id": "portable-toolkit",
+      "Name": "Portable Toolkit",
+      "Description": "即拉即用的免安裝隨身工具列",
+      "Sections": [
+        {
+          "Id": "pt-system",
+          "Name": "系統與檔案工具",
+          "Description": "硬體監控與磁碟清理",
+          "AppIds": [
+            "WizTreePortable",
+            "CrystalDiskInfoPortable",
+            "ProcessExplorerPortable"
+          ]
+        },
+        {
+          "Id": "pt-documents",
+          "Name": "文書與辦公",
+          "Description": "常見文件閱覽",
+          "AppIds": [
+            "SumatraPDFPortable"
+          ]
+        },
+        {
+          "Id": "pt-network",
+          "Name": "網路與連線",
+          "Description": "遠端登入與傳輸",
+          "AppIds": [
+            "PuTTYPortable"
+          ]
+        }
+      ]
     }
   ],
   "Presets": [
@@ -203,6 +316,15 @@
         "Microsoft.VisualStudioCode",
         "NotepadPlusPlus",
         "Microsoft.DotNet.DesktopRuntime.8"
+      ]
+    },
+    {
+      "Id": "common-portable",
+      "Name": "輕量免安裝包",
+      "Description": "不留痕跡的實用工具包",
+      "AppIds": [
+        "WizTreePortable",
+        "SumatraPDFPortable"
       ]
     }
   ]

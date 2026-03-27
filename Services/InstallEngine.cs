@@ -35,6 +35,12 @@ public class InstallEngine
                 return true;
             }
 
+            // 新增免安裝版 (Portable) 處理邏輯
+            if (app.DeploymentType == DeploymentType.Portable)
+            {
+                return await HandlePortableDeploymentAsync(app, onProgress);
+            }
+
             // 2. 下載或定位封裝
             string executorPath = string.Empty;
             string executorArgs = string.Empty;
@@ -128,6 +134,65 @@ public class InstallEngine
         }
     }
 
+    private async Task<bool> HandlePortableDeploymentAsync(AppItem app, Action<int> onProgress)
+    {
+        string portableToolBaseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Tools", "Portable");
+        if (!Directory.Exists(portableToolBaseDir))
+            Directory.CreateDirectory(portableToolBaseDir);
+
+        string targetFolder = Path.Combine(portableToolBaseDir, string.IsNullOrWhiteSpace(app.PortableTargetFolder) ? app.Name : app.PortableTargetFolder);
+        
+        string localFile = Path.Combine(_cacheDirectory, Path.GetFileName(new Uri(app.Source).LocalPath));
+        if (string.IsNullOrEmpty(Path.GetFileName(localFile))) localFile = Path.Combine(_cacheDirectory, $"{app.Name}.bin");
+
+        app.Status = AppStatus.Downloading;
+        if (!File.Exists(localFile))
+        {
+            var downloaded = await DownloadFileAsync(app.Source, localFile, onProgress);
+            if (!downloaded)
+            {
+                app.Status = AppStatus.Failed;
+                app.ErrorMessage = "下載 Portable 檔案失敗";
+                return false;
+            }
+        }
+
+        app.Status = AppStatus.Installing;
+        app.Progress = 90;
+
+        try
+        {
+            if (app.InstallerType == InstallerType.Zip)
+            {
+                if (Directory.Exists(targetFolder))
+                    Directory.Delete(targetFolder, true);
+                    
+                System.IO.Compression.ZipFile.ExtractToDirectory(localFile, targetFolder, true);
+            }
+            else
+            {
+                if (!Directory.Exists(targetFolder))
+                    Directory.CreateDirectory(targetFolder);
+                    
+                string targetFileName = string.IsNullOrWhiteSpace(app.PortableEntryRelativePath) ? Path.GetFileName(localFile) : app.PortableEntryRelativePath;
+                File.Copy(localFile, Path.Combine(targetFolder, targetFileName), true);
+            }
+        }
+        catch (Exception ex)
+        {
+            app.Status = AppStatus.Failed;
+            app.ErrorMessage = $"解壓縮或佈署失敗: {ex.Message}";
+            return false;
+        }
+
+        app.Status = AppStatus.Verifying;
+        bool finalCheck = await IsAppInstalled(app.InstallCheck);
+        
+        app.Status = AppStatus.Success;
+        app.Progress = 100;
+        return true;
+    }
+
     private async Task<bool> IsAppInstalled(InstallCheck? check)
     {
         if (check == null) return false;
@@ -151,7 +216,13 @@ public class InstallEngine
             // 如果 exitCode 為 0 代表在清單中找到
             return p.ExitCode == 0;
         }
-        // TODO: 安裝 Path 和 Registry 檢查先暫時回傳 false 讓其繼續安裝流程
+        else if (check.Type == InstallCheckType.Path)
+        {
+            string expandedPath = Environment.ExpandEnvironmentVariables(check.Value);
+            return File.Exists(expandedPath) || Directory.Exists(expandedPath);
+        }
+        
+        // TODO: 安裝 Registry 檢查先暫時回傳 false 讓其繼續安裝流程
         return false; 
     }
 

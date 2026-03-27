@@ -16,30 +16,53 @@
         <viewmodels:MainViewModel />
     </ui:FluentWindow.DataContext>
 
+    <!-- 半透明玻璃卡片樣式 -->
+    <ui:FluentWindow.Resources>
+        <Style x:Key="GlassCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Margin" Value="10" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <!-- 主容器 -->
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="60"/>
-        </Grid.RowDefinitions>
+        <!-- 玻璃感背景層次的氛圍色塊 -->
+        <Ellipse Width="450" Height="450" Fill="#200078D7" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-100,-100,0" IsHitTestVisible="False">
+            <Ellipse.Effect><BlurEffect Radius="120" /></Ellipse.Effect>
+        </Ellipse>
+        <Ellipse Width="550" Height="550" Fill="#1A4CAF50" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-150,0,0,-150" IsHitTestVisible="False">
+            <Ellipse.Effect><BlurEffect Radius="150" /></Ellipse.Effect>
+        </Ellipse>
+
+        <!-- 介面內容區 -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
         <!-- WPF-UI 標題欄 (TitleBar) -->
         <Grid Grid.Row="0" Grid.ColumnSpan="2">
             <ui:TitleBar Title="Windows 軟體自動部署工具 (分組模式)" />
-            <ui:Button HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,140,0" 
-                       Appearance="Transparent" Command="{Binding ToggleThemeCommand}" ToolTip="切換明暗佈景">
-                <ui:SymbolIcon Symbol="WeatherMoon24" FontSize="18"/>
-            </ui:Button>
         </Grid>
 
         <!-- 左側導航 (Groups) -->
-        <Border Grid.Row="1" Grid.Column="0" Background="Transparent" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource GlassCardStyle}" Margin="10,0,5,10">
             <ListBox ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" 
-                     Background="Transparent" BorderThickness="0" Margin="10">
+                     Background="Transparent" BorderThickness="0" Margin="5">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="5,10">
@@ -59,26 +82,38 @@
             </Grid.RowDefinitions>
             
             <!-- 上方 Presets 區域 -->
-            <Border Grid.Row="0" Margin="10,10,10,0" Padding="10" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="快速預設清單：" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0"/>
-                    <ItemsControl ItemsSource="{Binding Presets}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ui:Button Content="{Binding Name}" 
-                                        Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                        CommandParameter="{Binding}" 
-                                        Margin="5,0"
-                                        Appearance="Primary" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
+            <Border Grid.Row="0" Style="{StaticResource GlassCardStyle}" Margin="5,0,10,10" Padding="15,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="快速預設清單：" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,10,0"/>
+                        <ItemsControl ItemsSource="{Binding Presets}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:Button Content="{Binding Name}" 
+                                            Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                            CommandParameter="{Binding}" 
+                                            Margin="5,0"
+                                            Appearance="Primary" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- 主題切換按鈕，重置到 100% 可點擊區 -->
+                    <ui:Button Grid.Column="1" Appearance="Transparent" Command="{Binding ToggleThemeCommand}" ToolTip="切換系統明暗佈景" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="{Binding ThemeIcon}" FontSize="18"/>
+                    </ui:Button>
+                </Grid>
             </Border>
 
             <!-- 下方 Sections 分頁區 -->
@@ -96,15 +131,17 @@
                                       AutoGenerateColumns="False" CanUserAddRows="False"
                                       HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                       HorizontalGridLinesBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
-                                      BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                                      Background="Transparent" RowBackground="Transparent" RowHeight="45">
+                                      BorderThickness="0"
+                                      Background="Transparent" RowBackground="Transparent" RowHeight="50">
                                 <DataGrid.Columns>
                                 <!-- 勾選框 -->
-                                <DataGridTemplateColumn Width="50">
+                                <DataGridTemplateColumn Width="64">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" 
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,0">
+                                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" 
+                                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -183,8 +220,8 @@
         </Grid>
 
         <!-- 底部控制列 -->
-        <Border Grid.Row="2" Grid.ColumnSpan="2" Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
-            <Grid Margin="20,0">
+        <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource GlassCardStyle}" Margin="10,0,10,10">
+            <Grid Margin="20,15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -203,4 +240,5 @@
             </Grid>
         </Border>
     </Grid>
+</Grid>
 </ui:FluentWindow>

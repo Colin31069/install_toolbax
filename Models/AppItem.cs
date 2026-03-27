@@ -19,6 +19,13 @@ public partial class AppItem : ObservableObject
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public InstallerType InstallerType { get; set; }
     
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public DeploymentType DeploymentType { get; set; } = DeploymentType.Installed;
+    
+    public string PortableTargetFolder { get; set; } = string.Empty;
+    public string PortableEntryRelativePath { get; set; } = string.Empty;
+    public string PortableExtractSubfolder { get; set; } = string.Empty;
+
     public string InstallArgs { get; set; } = string.Empty;
     
     public bool RequiresAdmin { get; set; } = true;
